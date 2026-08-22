@@ -1,0 +1,14 @@
+{
+  "name": "howidely-site",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Howidely marketing site - single self-contained HTML page built from source",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "watch": "node scripts/build.mjs --watch",
+    "serve": "node -e \"import('node:http').then(({default:h})=>import('node:fs').then(({readFileSync})=>h.createServer((q,s)=>{s.setHeader('content-type','text/html');s.end(readFileSync('dist/index.html'))}).listen(4173,()=>console.log('http://localhost:4173'))))\""
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.19"
+  }
+}

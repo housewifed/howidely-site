@@ -1,0 +1,1629 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Howidely — Mission-Critical Hardware &amp; Software Integration</title>
+<meta name="description" content="Howidely engineers high-tech hardware and software integrations for Government, Public Safety and First Responders — tactical connectivity, TAK infrastructure, UAV systems and Linux automation." />
+<meta name="theme-color" content="#020617" />
+
+<!-- Open Graph -->
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Howidely — Mission-Critical Hardware &amp; Software Integration" />
+<meta property="og:description" content="Bridging hardware and software for Government, Public Safety and First Responders." />
+
+<!-- Favicon: inline SVG of the Howidely mark -->
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='250 105 500 395'%3E%3Cg fill='%23ffffff'%3E%3Cpath d='M 311,124 323,131 335,137 346,144 358,151 369,157 380,164 391,171 402,178 412,185 422,193 431,200 440,208 449,215 457,223 465,231 472,239 479,247 486,256 491,265 496,274 501,283 505,293 507,303 509,313 510,324 510,334 509,345 507,356 503,367 499,377 493,387 486,397 478,407 469,416 459,424 448,433 436,441 423,448 409,456 394,462 378,469 361,475 342,480 322,485 301,488 277,486 275,477 292,461 310,451 327,441 342,432 357,424 370,416 383,408 394,400 404,393 413,386 421,379 427,373 433,366 439,360 443,355 446,349 449,344 452,338 453,333 455,328 456,323 456,317 456,311 456,305 455,299 453,292 451,285 448,277 444,270 440,262 436,254 430,245 425,237 418,229 411,220 404,211 396,203 388,194 380,185 371,176 362,167 352,159 342,150 332,141 322,133 311,124 Z'/%3E%3Cpath d='M 689,124 677,131 665,137 654,144 642,151 631,157 620,164 609,171 598,178 588,185 578,193 569,200 560,208 551,215 543,223 535,231 528,239 521,247 514,256 509,265 504,274 499,283 495,293 493,303 491,313 490,324 490,334 491,345 493,356 497,367 501,377 507,387 514,397 522,407 531,416 541,424 552,433 564,441 577,448 591,456 606,462 622,469 639,475 658,480 678,485 699,488 723,486 725,477 708,461 690,451 673,441 658,432 643,424 630,416 617,408 606,400 596,393 587,386 579,379 573,373 567,366 561,360 557,355 554,349 551,344 548,338 547,333 545,328 544,323 544,317 544,311 544,305 545,299 547,292 549,285 552,277 556,270 560,262 564,254 570,245 575,237 582,229 589,220 596,211 604,203 612,194 620,185 629,176 638,167 648,159 658,150 668,141 678,133 689,124 Z'/%3E%3C/g%3E%3C/svg%3E" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+
+
+<!--BUILD:TAILWIND-->
+<style>
+  body { -webkit-font-smoothing: antialiased; }
+
+  /* Tactical grid + vignette backdrop */
+  .tactical-grid {
+    background-image:
+      linear-gradient(to right, rgba(34,211,238,.055) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(34,211,238,.055) 1px, transparent 1px);
+    background-size: 56px 56px;
+  }
+  /* Fade painted as a gradient, not a mask. A mask forces a full-element render
+     surface and these cover whole multi-megapixel sections; a gradient keeps the
+     56px grid on the tiling fast path. This was the dominant scroll-jank cost. */
+  .radial-fade::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(ellipse 80% 60% at 50% 35%, transparent 30%, #020617 100%);
+  }
+
+  .text-gradient {
+    background: linear-gradient(120deg, #ffffff 0%, #a5f3fc 45%, #6ee7b7 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+
+  /* Scroll-reveal */
+  .reveal { opacity: 0; transform: translateY(22px); transition: opacity .7s cubic-bezier(.2,.7,.3,1), transform .7s cubic-bezier(.2,.7,.3,1); will-change: opacity, transform; }
+  .reveal.is-visible { opacity: 1; transform: none; }
+  .reveal.is-done { will-change: auto; }
+
+  /* Custom scrollbars inside panels */
+  .thin-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
+  .thin-scroll::-webkit-scrollbar-track { background: rgba(148,163,184,.06); }
+  .thin-scroll::-webkit-scrollbar-thumb { background: rgba(34,211,238,.28); border-radius: 999px; }
+  .thin-scroll::-webkit-scrollbar-thumb:hover { background: rgba(34,211,238,.45); }
+  .thin-scroll { scrollbar-width: thin; scrollbar-color: rgba(34,211,238,.28) transparent; }
+
+  /* Nav active state */
+  .nav-link.active { color: #67e8f9; }
+  .nav-link.active::after { transform: scaleX(1); }
+  .nav-link::after {
+    content: ''; position: absolute; left: 0; right: 0; bottom: -6px; height: 1px;
+    background: linear-gradient(90deg, #22d3ee, #34d399);
+    transform: scaleX(0); transform-origin: left; transition: transform .3s ease;
+  }
+  .nav-link:hover::after { transform: scaleX(1); }
+
+
+  /* Tactical spec badge */
+  .spec-badge {
+    display: inline-block; padding: .2rem .55rem; border-radius: .3rem;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 10px; line-height: 1.5; text-transform: uppercase; letter-spacing: .06em;
+    color: #94a3b8; background: rgba(148,163,184,.08);
+    box-shadow: inset 0 0 0 1px rgba(148,163,184,.16);
+    transition: color .25s ease, background .25s ease, box-shadow .25s ease;
+  }
+  .group:hover .spec-badge { color: #a5f3fc; background: rgba(34,211,238,.10); box-shadow: inset 0 0 0 1px rgba(34,211,238,.28); }
+
+  /* Corner brackets on hover */
+  .card-corner::before, .card-corner::after {
+    content: ''; position: absolute; width: 14px; height: 14px;
+    border-color: rgba(34,211,238,.55); opacity: 0; transition: opacity .3s ease;
+    pointer-events: none;
+  }
+  .card-corner::before { top: 10px; left: 10px; border-top: 1.5px solid; border-left: 1.5px solid; }
+  .card-corner::after  { bottom: 10px; right: 10px; border-bottom: 1.5px solid; border-right: 1.5px solid; }
+  .card-corner:hover::before, .card-corner:hover::after { opacity: 1; }
+
+  /* Flagship feature card */
+  .feat-card {
+    position: relative; overflow: hidden; border-radius: 1rem; padding: 1.75rem;
+    border: 1px solid rgba(255,255,255,.10); background: rgba(2,6,23,.55);
+    transition: transform .35s cubic-bezier(.2,.7,.3,1), border-color .35s ease, background .35s ease, box-shadow .35s ease;
+  }
+  .feat-card::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none; opacity: 0;
+    background: radial-gradient(ellipse 70% 60% at 50% 0%, rgba(34,211,238,.13), transparent 70%);
+    transition: opacity .35s ease;
+  }
+  .feat-card:hover {
+    transform: translateY(-6px); border-color: rgba(34,211,238,.38); background: rgba(11,17,32,.85);
+    box-shadow: 0 18px 40px -18px rgba(0,0,0,.9), 0 0 0 1px rgba(34,211,238,.10);
+  }
+  .feat-card:hover::after { opacity: 1; }
+  .feat-num {
+    position: absolute; top: 1.1rem; right: 1.25rem;
+    font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; font-weight: 700;
+    color: rgba(148,163,184,.30); transition: color .3s ease;
+  }
+  .feat-card:hover .feat-num { color: rgba(34,211,238,.75); }
+  .feat-icon {
+    position: relative; display: inline-flex; height: 3rem; width: 3rem; align-items: center; justify-content: center;
+    border-radius: .75rem; box-shadow: inset 0 0 0 1px currentColor; transition: background .3s ease, transform .3s ease;
+  }
+  .feat-card:hover .feat-icon { transform: scale(1.06); }
+  .feat-title { position: relative; margin-top: 1.25rem; font-size: 1.0625rem; font-weight: 600; color: #fff; line-height: 1.35; }
+  .feat-body  { position: relative; margin-top: .75rem; font-size: .875rem; line-height: 1.65; color: #94a3b8; }
+  .feat-badges{ position: relative; margin-top: 1.1rem; display: flex; flex-wrap: wrap; gap: .375rem; }
+
+
+  /* Invisible 24x24 minimum hit area (WCAG 2.2 AA 2.5.8) without shifting layout */
+  .hit-target::after { content: ''; position: absolute; inset: -8px; }
+
+  /* Live feed: slow drift over the satellite plate + CRT scanlines */
+  @keyframes feedPan { 0% { transform: scale(1.06) translate(1.2%, -1%); } 100% { transform: scale(1.13) translate(-1.4%, 1.2%); } }
+  .sar-feed-pan { animation: feedPan 26s ease-in-out infinite alternate; will-change: transform; }
+  .sar-scanlines {
+    background: repeating-linear-gradient(to bottom, rgba(0,0,0,0) 0 2px, rgba(0,0,0,.16) 2px 3px);
+    mix-blend-mode: multiply;
+  }
+  @media (prefers-reduced-motion: reduce) { .sar-feed-pan { animation: none; } }
+
+  /* SAR room controls */
+  .sar-chip {
+    padding: .3rem .7rem; border-radius: .375rem;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 10px; text-transform: uppercase; letter-spacing: .07em;
+    color: #778495; background: transparent;
+    box-shadow: inset 0 0 0 1px rgba(148,163,184,.14);
+    transition: all .22s ease; cursor: pointer;
+  }
+  .sar-chip:hover { color: #cbd5e1; background: rgba(255,255,255,.04); }
+  .sar-chip.is-on { color: #67e8f9; background: rgba(34,211,238,.12); box-shadow: inset 0 0 0 1px rgba(34,211,238,.4); }
+
+  .sar-kind {
+    display: flex; align-items: center; gap: .5rem;
+    padding: .7rem .85rem; border-radius: .625rem; text-align: left;
+    font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px;
+    color: #a8b3c2; background: rgba(2,6,23,.6);
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.10);
+    transition: all .22s ease; cursor: pointer;
+  }
+  .sar-kind:hover { color: #e2e8f0; background: rgba(255,255,255,.04); }
+  .sar-kind.is-on { color: #fff; background: rgba(34,211,238,.12); box-shadow: inset 0 0 0 1.5px rgba(34,211,238,.55); }
+
+  html { scroll-padding-top: 88px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
+    .reveal { opacity: 1; transform: none; }
+    html { scroll-behavior: auto !important; }
+  }
+</style>
+</head>
+
+<body class="bg-ink-950 font-sans text-slate-300 antialiased selection:bg-cyan-400/30 selection:text-white">
+
+<svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute">
+  <defs>
+    <g id="hw-mark" fill="currentColor">
+      <path d="M 311.0,124.0 313.7,125.6 316.5,127.1 319.2,128.6 322.0,130.1 324.7,131.6 327.5,133.2 330.2,134.7 332.9,136.2 335.6,137.7 338.3,139.3 341.0,140.8 343.7,142.3 346.4,143.9 349.0,145.4 351.7,146.9 354.3,148.5 356.9,150.0 359.6,151.6 362.2,153.2 364.8,154.7 367.3,156.3 369.9,157.9 372.5,159.4 375.0,161.0 377.6,162.6 380.1,164.2 382.6,165.8 385.1,167.4 387.5,169.0 390.0,170.6 392.4,172.2 394.9,173.8 397.3,175.4 399.7,177.0 402.1,178.7 404.4,180.3 406.8,182.0 409.1,183.6 411.4,185.3 413.7,186.9 416.0,188.6 418.2,190.2 420.5,191.9 422.7,193.6 424.9,195.3 427.1,197.0 429.2,198.7 431.4,200.4 433.5,202.1 435.6,203.8 437.7,205.5 439.8,207.3 441.8,209.0 443.8,210.8 445.8,212.5 447.8,214.3 449.8,216.1 451.7,217.8 453.6,219.6 455.5,221.4 457.4,223.2 459.2,225.0 461.0,226.8 462.8,228.7 464.6,230.5 466.3,232.4 468.0,234.2 469.7,236.1 471.4,238.0 473.0,239.9 474.7,241.8 476.2,243.7 477.8,245.6 479.3,247.5 480.8,249.5 482.3,251.4 483.8,253.4 485.2,255.4 486.6,257.4 487.9,259.4 489.2,261.4 490.5,263.5 491.8,265.5 493.0,267.6 494.2,269.7 495.4,271.8 496.5,273.9 497.6,276.0 498.6,278.1 499.6,280.3 500.6,282.5 501.5,284.7 502.4,286.9 503.3,289.1 504.1,291.4 504.9,293.6 505.6,295.9 506.3,298.2 506.9,300.5 507.5,302.8 508.0,305.2 508.5,307.5 509.0,309.9 509.3,312.3 509.7,314.7 510.0,317.1 510.2,319.5 510.4,321.9 510.5,324.4 510.5,326.8 510.5,329.3 510.5,331.8 510.4,334.2 510.2,336.7 510.0,339.2 509.7,341.7 509.3,344.2 508.9,346.7 508.4,349.1 507.9,351.6 507.3,354.1 506.6,356.6 505.9,359.0 505.1,361.5 504.2,363.9 503.3,366.4 502.4,368.8 501.3,371.2 500.2,373.6 499.1,376.0 497.9,378.4 496.6,380.7 495.3,383.1 493.9,385.4 492.5,387.7 491.0,390.0 489.4,392.3 487.8,394.5 486.1,396.7 484.4,399.0 482.6,401.2 480.8,403.3 478.9,405.5 477.0,407.6 475.0,409.7 473.0,411.8 470.9,413.9 468.7,416.0 466.5,418.0 464.2,420.0 461.9,422.0 459.6,424.0 457.2,426.0 454.7,427.9 452.2,429.9 449.6,431.8 447.0,433.6 444.3,435.5 441.5,437.3 438.8,439.2 435.9,441.0 433.0,442.8 430.1,444.5 427.1,446.3 424.0,448.0 420.9,449.7 417.7,451.4 414.5,453.1 411.2,454.7 407.9,456.3 404.5,457.9 401.0,459.5 397.5,461.1 394.0,462.6 390.3,464.1 386.6,465.6 382.9,467.1 379.1,468.5 375.2,469.9 371.3,471.3 367.3,472.7 363.3,474.0 359.2,475.3 355.0,476.6 350.7,477.8 346.4,479.0 342.1,480.1 337.6,481.3 333.1,482.3 328.5,483.3 323.9,484.3 319.1,485.2 314.3,486.0 309.4,486.7 304.5,487.3 299.4,487.7 294.2,488.0 288.9,488.0 283.3,487.5 277.4,485.8 274.6,476.9 278.4,472.1 282.5,468.5 286.6,465.3 290.8,462.5 295.0,459.8 299.1,457.2 303.2,454.7 307.2,452.3 311.2,450.0 315.1,447.8 319.0,445.5 322.8,443.4 326.6,441.2 330.3,439.2 333.9,437.1 337.5,435.1 341.0,433.0 344.5,431.1 347.9,429.1 351.2,427.2 354.5,425.2 357.7,423.3 360.9,421.4 364.0,419.6 367.0,417.7 370.0,415.9 373.0,414.1 375.8,412.3 378.6,410.5 381.4,408.7 384.0,406.9 386.7,405.2 389.2,403.4 391.7,401.7 394.2,400.0 396.6,398.3 398.9,396.6 401.2,395.0 403.4,393.3 405.6,391.7 407.7,390.0 409.7,388.4 411.7,386.8 413.7,385.2 415.5,383.6 417.4,382.0 419.1,380.5 420.9,378.9 422.5,377.4 424.1,375.9 425.7,374.4 427.2,372.9 428.7,371.4 430.1,370.0 431.5,368.5 432.8,367.1 434.0,365.7 435.3,364.3 436.4,362.9 437.6,361.5 438.7,360.1 439.7,358.8 440.7,357.5 441.7,356.1 442.6,354.8 443.5,353.5 444.3,352.3 445.1,351.0 445.9,349.7 446.7,348.5 447.4,347.2 448.0,346.0 448.7,344.8 449.3,343.6 449.9,342.4 450.4,341.2 450.9,340.0 451.4,338.8 451.9,337.6 452.3,336.4 452.8,335.2 453.2,334.1 453.5,332.9 453.9,331.7 454.2,330.5 454.5,329.3 454.8,328.1 455.0,326.9 455.2,325.7 455.4,324.4 455.6,323.2 455.8,321.9 455.9,320.7 456.0,319.4 456.1,318.1 456.2,316.8 456.2,315.5 456.2,314.2 456.2,312.8 456.1,311.4 456.1,310.0 456.0,308.6 455.8,307.2 455.7,305.8 455.5,304.3 455.3,302.8 455.0,301.3 454.8,299.8 454.5,298.3 454.1,296.7 453.7,295.2 453.3,293.6 452.9,292.0 452.5,290.4 452.0,288.7 451.4,287.1 450.9,285.4 450.3,283.8 449.7,282.1 449.0,280.4 448.3,278.6 447.6,276.9 446.8,275.2 446.1,273.4 445.2,271.6 444.4,269.8 443.5,268.0 442.6,266.2 441.6,264.4 440.7,262.6 439.7,260.8 438.6,258.9 437.6,257.0 436.5,255.2 435.3,253.3 434.2,251.4 433.0,249.5 431.8,247.6 430.5,245.7 429.2,243.8 427.9,241.9 426.6,239.9 425.2,238.0 423.8,236.1 422.4,234.1 421.0,232.2 419.5,230.2 418.0,228.3 416.5,226.3 414.9,224.3 413.3,222.3 411.7,220.4 410.1,218.4 408.5,216.4 406.8,214.4 405.1,212.4 403.4,210.4 401.6,208.4 399.8,206.4 398.0,204.4 396.2,202.4 394.4,200.4 392.5,198.3 390.6,196.3 388.7,194.3 386.8,192.3 384.9,190.3 382.9,188.2 380.9,186.2 378.9,184.2 376.9,182.2 374.8,180.2 372.8,178.1 370.7,176.1 368.6,174.1 366.5,172.0 364.3,170.0 362.2,168.0 360.0,166.0 357.8,163.9 355.6,161.9 353.4,159.9 351.2,157.9 348.9,155.9 346.7,153.8 344.4,151.8 342.1,149.8 339.8,147.8 337.5,145.8 335.1,143.8 332.8,141.8 330.4,139.8 328.0,137.8 325.7,135.8 323.3,133.8 320.8,131.8 318.4,129.8 316.0,127.9 313.5,125.9 311.0,124.0 Z"/>
+      <path d="M 689.0,124.0 686.3,125.6 683.5,127.1 680.8,128.6 678.0,130.1 675.3,131.6 672.5,133.2 669.8,134.7 667.1,136.2 664.4,137.7 661.7,139.3 659.0,140.8 656.3,142.3 653.6,143.9 651.0,145.4 648.3,146.9 645.7,148.5 643.1,150.0 640.4,151.6 637.8,153.2 635.2,154.7 632.7,156.3 630.1,157.9 627.5,159.4 625.0,161.0 622.4,162.6 619.9,164.2 617.4,165.8 614.9,167.4 612.5,169.0 610.0,170.6 607.6,172.2 605.1,173.8 602.7,175.4 600.3,177.0 597.9,178.7 595.6,180.3 593.2,182.0 590.9,183.6 588.6,185.3 586.3,186.9 584.0,188.6 581.8,190.2 579.5,191.9 577.3,193.6 575.1,195.3 572.9,197.0 570.8,198.7 568.6,200.4 566.5,202.1 564.4,203.8 562.3,205.5 560.2,207.3 558.2,209.0 556.2,210.8 554.2,212.5 552.2,214.3 550.2,216.1 548.3,217.8 546.4,219.6 544.5,221.4 542.6,223.2 540.8,225.0 539.0,226.8 537.2,228.7 535.4,230.5 533.7,232.4 532.0,234.2 530.3,236.1 528.6,238.0 527.0,239.9 525.3,241.8 523.8,243.7 522.2,245.6 520.7,247.5 519.2,249.5 517.7,251.4 516.2,253.4 514.8,255.4 513.4,257.4 512.1,259.4 510.8,261.4 509.5,263.5 508.2,265.5 507.0,267.6 505.8,269.7 504.6,271.8 503.5,273.9 502.4,276.0 501.4,278.1 500.4,280.3 499.4,282.5 498.5,284.7 497.6,286.9 496.7,289.1 495.9,291.4 495.1,293.6 494.4,295.9 493.7,298.2 493.1,300.5 492.5,302.8 492.0,305.2 491.5,307.5 491.0,309.9 490.7,312.3 490.3,314.7 490.0,317.1 489.8,319.5 489.6,321.9 489.5,324.4 489.5,326.8 489.5,329.3 489.5,331.8 489.6,334.2 489.8,336.7 490.0,339.2 490.3,341.7 490.7,344.2 491.1,346.7 491.6,349.1 492.1,351.6 492.7,354.1 493.4,356.6 494.1,359.0 494.9,361.5 495.8,363.9 496.7,366.4 497.6,368.8 498.7,371.2 499.8,373.6 500.9,376.0 502.1,378.4 503.4,380.7 504.7,383.1 506.1,385.4 507.5,387.7 509.0,390.0 510.6,392.3 512.2,394.5 513.9,396.7 515.6,399.0 517.4,401.2 519.2,403.3 521.1,405.5 523.0,407.6 525.0,409.7 527.0,411.8 529.1,413.9 531.3,416.0 533.5,418.0 535.8,420.0 538.1,422.0 540.4,424.0 542.8,426.0 545.3,427.9 547.8,429.9 550.4,431.8 553.0,433.6 555.7,435.5 558.5,437.3 561.2,439.2 564.1,441.0 567.0,442.8 569.9,444.5 572.9,446.3 576.0,448.0 579.1,449.7 582.3,451.4 585.5,453.1 588.8,454.7 592.1,456.3 595.5,457.9 599.0,459.5 602.5,461.1 606.0,462.6 609.7,464.1 613.4,465.6 617.1,467.1 620.9,468.5 624.8,469.9 628.7,471.3 632.7,472.7 636.7,474.0 640.8,475.3 645.0,476.6 649.3,477.8 653.6,479.0 657.9,480.1 662.4,481.3 666.9,482.3 671.5,483.3 676.1,484.3 680.9,485.2 685.7,486.0 690.6,486.7 695.5,487.3 700.6,487.7 705.8,488.0 711.1,488.0 716.7,487.5 722.6,485.8 725.4,476.9 721.6,472.1 717.5,468.5 713.4,465.3 709.2,462.5 705.0,459.8 700.9,457.2 696.8,454.7 692.8,452.3 688.8,450.0 684.9,447.8 681.0,445.5 677.2,443.4 673.4,441.2 669.7,439.2 666.1,437.1 662.5,435.1 659.0,433.0 655.5,431.1 652.1,429.1 648.8,427.2 645.5,425.2 642.3,423.3 639.1,421.4 636.0,419.6 633.0,417.7 630.0,415.9 627.0,414.1 624.2,412.3 621.4,410.5 618.6,408.7 616.0,406.9 613.3,405.2 610.8,403.4 608.3,401.7 605.8,400.0 603.4,398.3 601.1,396.6 598.8,395.0 596.6,393.3 594.4,391.7 592.3,390.0 590.3,388.4 588.3,386.8 586.3,385.2 584.5,383.6 582.6,382.0 580.9,380.5 579.1,378.9 577.5,377.4 575.9,375.9 574.3,374.4 572.8,372.9 571.3,371.4 569.9,370.0 568.5,368.5 567.2,367.1 566.0,365.7 564.7,364.3 563.6,362.9 562.4,361.5 561.3,360.1 560.3,358.8 559.3,357.5 558.3,356.1 557.4,354.8 556.5,353.5 555.7,352.3 554.9,351.0 554.1,349.7 553.3,348.5 552.6,347.2 552.0,346.0 551.3,344.8 550.7,343.6 550.1,342.4 549.6,341.2 549.1,340.0 548.6,338.8 548.1,337.6 547.7,336.4 547.2,335.2 546.8,334.1 546.5,332.9 546.1,331.7 545.8,330.5 545.5,329.3 545.2,328.1 545.0,326.9 544.8,325.7 544.6,324.4 544.4,323.2 544.2,321.9 544.1,320.7 544.0,319.4 543.9,318.1 543.8,316.8 543.8,315.5 543.8,314.2 543.8,312.8 543.9,311.4 543.9,310.0 544.0,308.6 544.2,307.2 544.3,305.8 544.5,304.3 544.7,302.8 545.0,301.3 545.2,299.8 545.5,298.3 545.9,296.7 546.3,295.2 546.7,293.6 547.1,292.0 547.5,290.4 548.0,288.7 548.6,287.1 549.1,285.4 549.7,283.8 550.3,282.1 551.0,280.4 551.7,278.6 552.4,276.9 553.2,275.2 553.9,273.4 554.8,271.6 555.6,269.8 556.5,268.0 557.4,266.2 558.4,264.4 559.3,262.6 560.3,260.8 561.4,258.9 562.4,257.0 563.5,255.2 564.7,253.3 565.8,251.4 567.0,249.5 568.2,247.6 569.5,245.7 570.8,243.8 572.1,241.9 573.4,239.9 574.8,238.0 576.2,236.1 577.6,234.1 579.0,232.2 580.5,230.2 582.0,228.3 583.5,226.3 585.1,224.3 586.7,222.3 588.3,220.4 589.9,218.4 591.5,216.4 593.2,214.4 594.9,212.4 596.6,210.4 598.4,208.4 600.2,206.4 602.0,204.4 603.8,202.4 605.6,200.4 607.5,198.3 609.4,196.3 611.3,194.3 613.2,192.3 615.1,190.3 617.1,188.2 619.1,186.2 621.1,184.2 623.1,182.2 625.2,180.2 627.2,178.1 629.3,176.1 631.4,174.1 633.5,172.0 635.7,170.0 637.8,168.0 640.0,166.0 642.2,163.9 644.4,161.9 646.6,159.9 648.8,157.9 651.1,155.9 653.3,153.8 655.6,151.8 657.9,149.8 660.2,147.8 662.5,145.8 664.9,143.8 667.2,141.8 669.6,139.8 672.0,137.8 674.3,135.8 676.7,133.8 679.2,131.8 681.6,129.8 684.0,127.9 686.5,125.9 689.0,124.0 Z"/>
+    </g>
+  </defs>
+</svg>
+
+<a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-cyan-400 focus:px-4 focus:py-2 focus:font-semibold focus:text-ink-950">Skip to content</a>
+
+<!-- ============================================================= NAVBAR -->
+<header id="navbar" class="fixed inset-x-0 top-0 z-50 border-b border-white/5 bg-ink-950/95 transition-colors duration-200">
+  <nav class="mx-auto flex h-[72px] max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8 min-[1400px]:max-w-[1512px]" aria-label="Primary">
+
+    <!-- Logo -->
+    <a href="#hero" class="group flex shrink-0 items-center gap-3" aria-label="Howidely home">
+      <svg viewBox="250 105 500 395" class="h-8 w-10 shrink-0 text-white transition-transform duration-500 group-hover:scale-110" aria-hidden="true"><use href="#hw-mark"/></svg>
+      <span class="text-lg font-bold uppercase tracking-[0.32em] text-white">Howidely</span>
+    </a>
+
+    <!-- Desktop links -->
+    <ul class="hidden items-center gap-4 lg:flex">
+      <li><a href="#about"      class="nav-link relative -my-2 whitespace-nowrap py-2 text-[13px] font-medium text-slate-300 transition-colors hover:text-white xl:text-sm">About</a></li>
+      <li><a href="#history"    class="nav-link relative -my-2 whitespace-nowrap py-2 text-[13px] font-medium text-slate-300 transition-colors hover:text-white xl:text-sm">History</a></li>
+      <li><a href="#abox"       class="nav-link relative -my-2 whitespace-nowrap py-2 text-[13px] font-medium text-slate-300 transition-colors hover:text-white xl:text-sm">A-BOX</a></li>
+      <li><a href="#roadmap"    class="nav-link relative -my-2 whitespace-nowrap py-2 text-[13px] font-medium text-slate-300 transition-colors hover:text-white xl:text-sm">Coming Soon</a></li>
+      <li><a href="#projects"   class="nav-link relative -my-2 whitespace-nowrap py-2 text-[13px] font-medium text-slate-300 transition-colors hover:text-white xl:text-sm">Projects</a></li>
+      <li><a href="#tak"        class="nav-link relative -my-2 whitespace-nowrap py-2 text-[13px] font-medium text-slate-300 transition-colors hover:text-white xl:text-sm">TAK Server UI</a></li>
+      <li><a href="#leadership" class="nav-link relative -my-2 whitespace-nowrap py-2 text-[13px] font-medium text-slate-300 transition-colors hover:text-white xl:text-sm">Leadership</a></li>
+      <li><a href="#contact"    class="nav-link relative -my-2 whitespace-nowrap py-2 text-[13px] font-medium text-slate-300 transition-colors hover:text-white xl:text-sm">Contact</a></li>
+    </ul>
+
+    <div class="flex shrink-0 items-center gap-3">
+      <!-- Live system status - deliberately static: no pulsing ring, no rotating label -->
+      <div class="hidden shrink-0 items-center gap-2.5 rounded-full border border-emerald-400/25 bg-emerald-400/5 px-3.5 py-1.5 min-[1400px]:flex">
+        <span class="h-2 w-2 shrink-0 rounded-full bg-emerald-400" aria-hidden="true"></span>
+        <span class="whitespace-nowrap font-mono text-[11px] font-medium uppercase tracking-wider text-emerald-300">All Systems Operational</span>
+        <span id="status-clock" aria-hidden="true" class="shrink-0 font-mono text-[11px] tabular-nums text-emerald-400/80">--:--:-- UTC</span>
+      </div>
+
+      <a href="#contact" class="hidden rounded-lg bg-cyan-400 px-4 py-2 text-sm font-semibold text-ink-950 transition-all hover:bg-cyan-300 hover:shadow-lg hover:shadow-cyan-400/20 md:inline-block">Request Briefing</a>
+
+      <!-- Mobile toggle -->
+      <button id="menu-btn" type="button" class="rounded-lg border border-white/10 p-2 text-slate-200 transition hover:bg-white/5 lg:hidden" aria-expanded="false" aria-controls="mobile-menu" aria-label="Toggle navigation menu">
+        <svg id="icon-open" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" d="M4 7h16M4 12h16M4 17h16"/></svg>
+        <svg id="icon-close" class="hidden h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Mobile menu -->
+  <div id="mobile-menu" class="hidden border-t border-white/5 bg-ink-900/95 backdrop-blur-xl lg:hidden">
+    <ul class="space-y-1 px-4 py-4">
+      <li><a href="#about"      class="block rounded-lg px-3 py-2.5 text-sm font-medium text-slate-200 hover:bg-white/5 hover:text-cyan-300">About</a></li>
+      <li><a href="#history"    class="block rounded-lg px-3 py-2.5 text-sm font-medium text-slate-200 hover:bg-white/5 hover:text-cyan-300">History</a></li>
+      <li><a href="#abox"       class="block rounded-lg px-3 py-2.5 text-sm font-medium text-slate-200 hover:bg-white/5 hover:text-cyan-300">A-BOX</a></li>
+      <li><a href="#roadmap"    class="block rounded-lg px-3 py-2.5 text-sm font-medium text-slate-200 hover:bg-white/5 hover:text-cyan-300">Coming Soon</a></li>
+      <li><a href="#projects"   class="block rounded-lg px-3 py-2.5 text-sm font-medium text-slate-200 hover:bg-white/5 hover:text-cyan-300">Projects</a></li>
+      <li><a href="#tak"        class="block rounded-lg px-3 py-2.5 text-sm font-medium text-slate-200 hover:bg-white/5 hover:text-cyan-300">TAK Server UI</a></li>
+      <li><a href="#leadership" class="block rounded-lg px-3 py-2.5 text-sm font-medium text-slate-200 hover:bg-white/5 hover:text-cyan-300">Leadership</a></li>
+      <li><a href="#contact"    class="block rounded-lg px-3 py-2.5 text-sm font-medium text-slate-200 hover:bg-white/5 hover:text-cyan-300">Contact</a></li>
+      <li class="pt-2"><a href="#contact" class="block rounded-lg bg-cyan-400 px-3 py-2.5 text-center text-sm font-semibold text-ink-950">Request Briefing</a></li>
+    </ul>
+  </div>
+</header>
+
+<main id="main" tabindex="-1">
+
+<!-- ============================================================= HERO -->
+<section id="hero" class="relative flex min-h-screen items-center overflow-hidden pt-[72px]">
+  <!-- backdrop -->
+  <div class="tactical-grid radial-fade absolute inset-0" aria-hidden="true"></div>
+  <div class="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_0%,rgba(34,211,238,.12),transparent_70%)]" aria-hidden="true"></div>
+  <div class="absolute -left-40 top-1/3 h-[420px] w-[420px] rounded-full bg-cyan-500/10 blur-[120px]" aria-hidden="true"></div>
+  <div class="absolute -right-40 bottom-0 h-[420px] w-[420px] rounded-full bg-emerald-500/10 blur-[120px]" aria-hidden="true"></div>
+  <div class="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-ink-950 to-transparent" aria-hidden="true"></div>
+
+  <div class="relative mx-auto grid w-full max-w-7xl grid-cols-1 items-center gap-14 px-4 py-20 sm:px-6 lg:grid-cols-12 lg:px-8">
+
+    <div class="lg:col-span-7">
+      <div class="reveal mb-7 inline-flex items-center gap-2 rounded-full border border-cyan-400/20 bg-cyan-400/5 px-4 py-1.5">
+        <span class="h-1.5 w-1.5 rounded-full bg-cyan-400"></span>
+        <span class="font-mono text-[11px] uppercase tracking-[0.18em] text-cyan-300">Government · Public Safety · First Responders</span>
+      </div>
+
+      <h1 class="reveal text-4xl font-extrabold leading-[1.08] tracking-tight text-white sm:text-5xl lg:text-6xl xl:text-[4.1rem]">
+        Where hardware meets software at the
+        <span class="text-gradient">edge of the mission.</span>
+      </h1>
+
+      <p class="reveal mt-7 max-w-2xl text-lg leading-relaxed text-slate-400">
+        Howidely engineers integrated hardware and software systems for teams that cannot afford
+        downtime — dispatch centers, fire and EMS agencies, tactical operators and field engineering
+        crews. Resilient connectivity, tactical situational awareness, and validated hardware,
+        delivered end to end.
+      </p>
+
+      <div class="reveal mt-10 flex flex-col gap-4 sm:flex-row">
+        <a href="#tak" class="group inline-flex items-center justify-center gap-2 rounded-xl bg-cyan-400 px-7 py-3.5 text-sm font-semibold text-ink-950 shadow-lg shadow-cyan-400/20 transition-all hover:-translate-y-0.5 hover:bg-cyan-300 hover:shadow-cyan-400/30">
+          Explore TAK Revamp
+          <svg class="h-4 w-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m-6-6l6 6-6 6"/></svg>
+        </a>
+        <a href="#projects" class="inline-flex items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/[0.03] px-7 py-3.5 text-sm font-semibold text-white backdrop-blur transition-all hover:-translate-y-0.5 hover:border-cyan-400/40 hover:bg-white/[0.07]">
+          View Solutions
+        </a>
+      </div>
+
+      <!-- Stat strip -->
+      <dl class="reveal mt-14 grid max-w-2xl grid-cols-2 gap-x-8 gap-y-7 border-t border-white/5 pt-9 sm:grid-cols-4">
+        <div>
+          <dd class="font-mono text-3xl font-bold tabular-nums text-white"><span data-count="20" data-suffix="+">0</span></dd>
+          <dt class="mt-1 text-xs uppercase tracking-wider text-muted">Years Engineering</dt>
+        </div>
+        <div>
+          <dd class="font-mono text-3xl font-bold tabular-nums text-white"><span data-count="2020">0</span></dd>
+          <dt class="mt-1 text-xs uppercase tracking-wider text-muted">Founded</dt>
+        </div>
+        <div>
+          <dd class="font-mono text-3xl font-bold tabular-nums text-white"><span data-count="99" data-suffix=".9%">0</span></dd>
+          <dt class="mt-1 text-xs uppercase tracking-wider text-muted">Link Availability</dt>
+        </div>
+        <div>
+          <dd class="font-mono text-3xl font-bold tabular-nums text-white"><span data-count="4" data-suffix="">0</span></dd>
+          <dt class="mt-1 text-xs uppercase tracking-wider text-muted">Languages Spoken</dt>
+        </div>
+      </dl>
+    </div>
+
+    <!-- Hero panel: live-ish ops readout -->
+    <div class="reveal lg:col-span-5">
+      <div class="animate-floaty relative rounded-2xl border border-white/10 bg-ink-900/90 p-1.5 shadow-2xl shadow-black/60">
+        <div class="rounded-xl border border-white/5 bg-ink-950/80">
+          <!-- Panel head -->
+          <div class="flex items-center justify-between border-b border-white/5 px-4 py-3">
+            <div class="flex items-center gap-2">
+              <span class="h-2.5 w-2.5 rounded-full bg-rose-500/70"></span>
+              <span class="h-2.5 w-2.5 rounded-full bg-amber-400/70"></span>
+              <span class="h-2.5 w-2.5 rounded-full bg-emerald-400/70"></span>
+            </div>
+            <span class="font-mono text-[11px] uppercase tracking-widest text-muted">howidely // edge-node-01</span>
+          </div>
+
+          <!-- Radar -->
+          <div class="relative mx-auto my-6 h-44 w-44">
+            <div class="absolute inset-0 rounded-full border border-cyan-400/20"></div>
+            <div class="absolute inset-[18%] rounded-full border border-cyan-400/15"></div>
+            <div class="absolute inset-[38%] rounded-full border border-cyan-400/10"></div>
+            <div class="absolute left-1/2 top-0 h-full w-px -translate-x-1/2 bg-cyan-400/10"></div>
+            <div class="absolute top-1/2 h-px w-full -translate-y-1/2 bg-cyan-400/10"></div>
+            <div class="animate-sweep absolute inset-0 rounded-full" style="background: conic-gradient(from 0deg, rgba(34,211,238,.32), transparent 28%);"></div>
+            <span class="absolute left-[62%] top-[30%] h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_10px_2px_rgba(52,211,153,.7)]"></span>
+            <span class="absolute left-[33%] top-[58%] h-1.5 w-1.5 rounded-full bg-cyan-300 shadow-[0_0_10px_2px_rgba(103,232,249,.7)]"></span>
+            <span class="absolute left-[54%] top-[70%] h-1.5 w-1.5 rounded-full bg-amber-300 shadow-[0_0_10px_2px_rgba(252,211,77,.7)]"></span>
+          </div>
+
+          <!-- Readouts -->
+          <div class="grid grid-cols-3 gap-px border-t border-white/5 bg-white/5 font-mono text-center">
+            <div class="bg-ink-950 px-2 py-4">
+              <div class="text-[10px] uppercase tracking-wider text-muted">Latency</div>
+              <div class="mt-1 text-lg font-bold text-cyan-300"><span id="hero-latency">28</span><span class="text-xs text-muted">ms</span></div>
+            </div>
+            <div class="bg-ink-950 px-2 py-4">
+              <div class="text-[10px] uppercase tracking-wider text-muted">Uplink</div>
+              <div class="mt-1 text-lg font-bold text-emerald-300"><span id="hero-uplink">18.4</span><span class="text-xs text-muted">Mb</span></div>
+            </div>
+            <div class="bg-ink-950 px-2 py-4">
+              <div class="text-[10px] uppercase tracking-wider text-muted">Nodes</div>
+              <div class="mt-1 text-lg font-bold text-white"><span id="hero-nodes">42</span></div>
+            </div>
+          </div>
+
+          <!-- Log ticker -->
+          <div class="border-t border-white/5 px-4 py-3">
+            <p class="font-mono text-[11px] leading-relaxed text-muted">
+              <span class="text-emerald-400">&gt;</span> <span id="hero-log">bonding: LTE-A + Ka-band link established</span><span class="ml-0.5 inline-block h-3 w-1.5 translate-y-0.5 animate-pulse bg-cyan-400"></span>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============================================================= ABOUT -->
+<section id="about" class="relative border-t border-white/5 py-24 sm:py-32">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+
+    <div class="reveal max-w-3xl">
+      <span class="font-mono text-xs uppercase tracking-[0.28em] text-cyan-400">01 / About</span>
+      <h2 class="mt-4 text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl">
+        A systems integrator built for the field, not the lab.
+      </h2>
+      <p class="mt-6 text-lg leading-relaxed text-slate-400">
+        Most vendors sell you a box or a license. Howidely delivers the whole chain — radio and
+        compute hardware selected and validated against real environmental limits, the Linux
+        stack that runs on it, the automation that keeps it healthy, and the operator-facing
+        software that makes it useful at 3 a.m. in the rain.
+      </p>
+    </div>
+
+    <!-- Capability grid -->
+    <div class="mt-16 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+
+      <article class="reveal group relative overflow-hidden rounded-2xl border border-white/10 bg-ink-900/50 p-7 transition-all duration-300 hover:-translate-y-1 hover:border-cyan-400/30 hover:bg-ink-900">
+        <div class="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-cyan-400/10 text-cyan-300 ring-1 ring-cyan-400/20">
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M8.288 15.038a5.25 5.25 0 017.424 0M5.106 11.856c3.807-3.808 9.98-3.808 13.788 0M1.924 8.674c5.565-5.565 14.587-5.565 20.152 0M12.53 18.22l-.53.53-.53-.53a.75.75 0 011.06 0z"/></svg>
+        </div>
+        <h3 class="text-lg font-semibold text-white">Mission-Critical Connectivity</h3>
+        <p class="mt-3 text-sm leading-relaxed text-slate-400">
+          Multi-path bonded transport across LTE/5G, satellite and private RF. Link aggregation,
+          failover policy and QoS tuned so video and voice survive when a single carrier does not.
+        </p>
+      </article>
+
+      <article class="reveal group relative overflow-hidden rounded-2xl border border-white/10 bg-ink-900/50 p-7 transition-all duration-300 hover:-translate-y-1 hover:border-cyan-400/30 hover:bg-ink-900">
+        <div class="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-400/10 text-emerald-300 ring-1 ring-emerald-400/20">
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25m18 0A2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25m18 0V12a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 12V5.25"/></svg>
+        </div>
+        <h3 class="text-lg font-semibold text-white">Tactical Situational Awareness</h3>
+        <p class="mt-3 text-sm leading-relaxed text-slate-400">
+          TAK server deployment, hardening and interface modernization. Federation, data packages,
+          CoT routing and role-based access designed around how incident command actually works.
+        </p>
+      </article>
+
+      <article class="reveal group relative overflow-hidden rounded-2xl border border-white/10 bg-ink-900/50 p-7 transition-all duration-300 hover:-translate-y-1 hover:border-cyan-400/30 hover:bg-ink-900">
+        <div class="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-cyan-400/10 text-cyan-300 ring-1 ring-cyan-400/20">
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 13.5V3.75m0 9.75a1.5 1.5 0 010 3m0-3a1.5 1.5 0 000 3m0 3.75V16.5m12-3V3.75m0 9.75a1.5 1.5 0 010 3m0-3a1.5 1.5 0 000 3m0 3.75V16.5m-6-9V3.75m0 3.75a1.5 1.5 0 010 3m0-3a1.5 1.5 0 000 3m0 9.75V10.5"/></svg>
+        </div>
+        <h3 class="text-lg font-semibold text-white">Hardware Validation &amp; Bring-Up</h3>
+        <p class="mt-3 text-sm leading-relaxed text-slate-400">
+          Board bring-up, thermal and RF characterization, environmental and regulatory test
+          campaigns, and the failure analysis loop that turns a prototype into a fieldable unit.
+        </p>
+      </article>
+
+      <article class="reveal group relative overflow-hidden rounded-2xl border border-white/10 bg-ink-900/50 p-7 transition-all duration-300 hover:-translate-y-1 hover:border-cyan-400/30 hover:bg-ink-900">
+        <div class="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-400/10 text-emerald-300 ring-1 ring-emerald-400/20">
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 7.5l3 2.25-3 2.25m4.5 0h3m-9 8.25h13.5A2.25 2.25 0 0021 18V6a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 6v12a2.25 2.25 0 002.25 2.25z"/></svg>
+        </div>
+        <h3 class="text-lg font-semibold text-white">Linux &amp; Python Automation</h3>
+        <p class="mt-3 text-sm leading-relaxed text-slate-400">
+          Reproducible provisioning, remote fleet management, telemetry pipelines and automated
+          regression rigs — so a hundred deployed units behave like one you can actually see.
+        </p>
+      </article>
+
+      <article class="reveal group relative overflow-hidden rounded-2xl border border-white/10 bg-ink-900/50 p-7 transition-all duration-300 hover:-translate-y-1 hover:border-cyan-400/30 hover:bg-ink-900">
+        <div class="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-cyan-400/10 text-cyan-300 ring-1 ring-cyan-400/20">
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9 9 0 100-18 9 9 0 000 18zm0 0V3m9 9H3"/></svg>
+        </div>
+        <h3 class="text-lg font-semibold text-white">UAV &amp; Unmanned Systems</h3>
+        <p class="mt-3 text-sm leading-relaxed text-slate-400">
+          Airborne payload integration, downlink design, ground control interoperability and
+          telemetry fusion into the same common operating picture the ground teams already use.
+        </p>
+      </article>
+
+      <article class="reveal group relative overflow-hidden rounded-2xl border border-white/10 bg-ink-900/50 p-7 transition-all duration-300 hover:-translate-y-1 hover:border-cyan-400/30 hover:bg-ink-900">
+        <div class="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-400/10 text-emerald-300 ring-1 ring-emerald-400/20">
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3l7.5 3v5.25c0 4.28-3.06 8.28-7.5 9.75-4.44-1.47-7.5-5.47-7.5-9.75V6L12 3z"/><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 12l1.75 1.75L14.75 10.5"/></svg>
+        </div>
+        <h3 class="text-lg font-semibold text-white">Secure Deployment Support</h3>
+        <p class="mt-3 text-sm leading-relaxed text-slate-400">
+          Hardened baselines, certificate and identity management, documented change control and
+          on-site commissioning with the operators who will own the system afterward.
+        </p>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= HISTORY -->
+<section id="history" class="relative border-t border-white/5 bg-ink-900/30 py-24 sm:py-32">
+  <div class="tactical-grid radial-fade absolute inset-0 opacity-40" aria-hidden="true"></div>
+
+  <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="reveal max-w-3xl">
+      <span class="font-mono text-xs uppercase tracking-[0.28em] text-emerald-400">02 / History</span>
+      <h2 class="mt-4 text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl">Built under pressure. On purpose.</h2>
+      <p class="mt-6 text-lg leading-relaxed text-slate-400">
+        Howidely was founded in the middle of a global disruption, for organizations that were not
+        allowed to pause. That origin still defines how we scope, build and ship.
+      </p>
+    </div>
+
+    <ol class="relative mt-16 space-y-12 border-l border-white/10 pl-8 sm:pl-12">
+
+      <li class="reveal relative">
+        <span class="absolute -left-[41px] top-1 flex h-5 w-5 items-center justify-center rounded-full border-2 border-cyan-400 bg-ink-950 sm:-left-[57px]">
+          <span class="h-1.5 w-1.5 rounded-full bg-cyan-400"></span>
+          <span class="absolute inset-0 animate-pulseRing rounded-full bg-cyan-400/40"></span>
+        </span>
+        <div class="rounded-2xl border border-white/10 bg-ink-950/70 p-7 transition hover:border-cyan-400/30">
+          <div class="flex flex-wrap items-center gap-3">
+            <span class="rounded-md bg-cyan-400/10 px-2.5 py-1 font-mono text-xs font-semibold text-cyan-300 ring-1 ring-cyan-400/20">APR 2020</span>
+            <h3 class="text-xl font-semibold text-white">Founded during the COVID-19 pandemic</h3>
+          </div>
+          <p class="mt-4 text-sm leading-relaxed text-slate-400">
+            Howidely opened its doors in April 2020 with a narrow, urgent mandate: build hardware and
+            software fast enough to let mission-critical teams and enterprises keep operating while
+            their buildings emptied. The first engagements were measured in weeks, not quarters.
+          </p>
+        </div>
+      </li>
+
+      <li class="reveal relative">
+        <span class="absolute -left-[41px] top-1 flex h-5 w-5 items-center justify-center rounded-full border-2 border-emerald-400 bg-ink-950 sm:-left-[57px]">
+          <span class="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>
+        </span>
+        <div class="rounded-2xl border border-white/10 bg-ink-950/70 p-7 transition hover:border-emerald-400/30">
+          <div class="flex flex-wrap items-center gap-3">
+            <span class="rounded-md bg-emerald-400/10 px-2.5 py-1 font-mono text-xs font-semibold text-emerald-300 ring-1 ring-emerald-400/20">2020 – 2021</span>
+            <h3 class="text-xl font-semibold text-white">The remote-operations pivot</h3>
+          </div>
+          <p class="mt-4 text-sm leading-relaxed text-slate-400">
+            Control rooms, test benches and field equipment had to become reachable from anywhere
+            without loosening security. Howidely delivered remote access layers, hardened Linux
+            baselines, remote hardware test rigs and automated provisioning that turned physical
+            labs and dispatch positions into distributed ones.
+          </p>
+        </div>
+      </li>
+
+      <li class="reveal relative">
+        <span class="absolute -left-[41px] top-1 flex h-5 w-5 items-center justify-center rounded-full border-2 border-cyan-400 bg-ink-950 sm:-left-[57px]">
+          <span class="h-1.5 w-1.5 rounded-full bg-cyan-400"></span>
+        </span>
+        <div class="rounded-2xl border border-white/10 bg-ink-950/70 p-7 transition hover:border-cyan-400/30">
+          <div class="flex flex-wrap items-center gap-3">
+            <span class="rounded-md bg-cyan-400/10 px-2.5 py-1 font-mono text-xs font-semibold text-cyan-300 ring-1 ring-cyan-400/20">2020 – 2022</span>
+            <h3 class="text-xl font-semibold text-white">Initial A-BOX rollout</h3>
+          </div>
+          <p class="mt-4 text-sm leading-relaxed text-slate-400">
+            A-BOX shipped as a fully customizable appliance: unattended automation of repetitive
+            computer work, secure VPN on the local server, 4&nbsp;TB of local storage and fail-safe
+            mode with 24/7 script monitoring that emails on interruption. It proved the pattern
+            Howidely still builds on — put the compute where the work is and make it report for
+            itself.
+          </p>
+        </div>
+      </li>
+
+      <li class="reveal relative">
+        <span class="absolute -left-[41px] top-1 flex h-5 w-5 items-center justify-center rounded-full border-2 border-emerald-400 bg-ink-950 sm:-left-[57px]">
+          <span class="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>
+        </span>
+        <div class="rounded-2xl border border-white/10 bg-ink-950/70 p-7 transition hover:border-emerald-400/30">
+          <div class="flex flex-wrap items-center gap-3">
+            <span class="rounded-md bg-emerald-400/10 px-2.5 py-1 font-mono text-xs font-semibold text-emerald-300 ring-1 ring-emerald-400/20">2023 – 2024</span>
+            <h3 class="text-xl font-semibold text-white">Into public safety tactical infrastructure</h3>
+          </div>
+          <p class="mt-4 text-sm leading-relaxed text-slate-400">
+            Enterprise continuity work matured into dedicated public safety engineering: TAK server
+            deployments, CAD and dispatch integrations, UAV downlink fusion and interoperability
+            between agencies that had never shared a common operating picture before.
+          </p>
+        </div>
+      </li>
+
+      <li class="reveal relative">
+        <span class="absolute -left-[41px] top-1 flex h-5 w-5 items-center justify-center rounded-full border-2 border-white/40 bg-ink-950 sm:-left-[57px]">
+          <span class="h-1.5 w-1.5 rounded-full bg-white"></span>
+          <span class="absolute inset-0 animate-pulseRing rounded-full bg-white/30"></span>
+        </span>
+        <div class="rounded-2xl border border-cyan-400/20 bg-gradient-to-br from-cyan-400/[0.07] to-emerald-400/[0.04] p-7">
+          <div class="flex flex-wrap items-center gap-3">
+            <span class="rounded-md bg-white/10 px-2.5 py-1 font-mono text-xs font-semibold text-white ring-1 ring-white/20">2025 – NOW</span>
+            <h3 class="text-xl font-semibold text-white">TAK Revamp</h3>
+          </div>
+          <p class="mt-4 text-sm leading-relaxed text-slate-300">
+            Current focus: putting the ATAK common operating picture in a browser. Live device map
+            and roster, QR-based enrollment, team chat shared with the handhelds, live video and IP
+            cameras with recording, track playback and viewer/operator/admin roles — everything a
+            shift supervisor needs without installing a tactical client.
+          </p>
+        </div>
+      </li>
+
+    </ol>
+  </div>
+</section>
+
+<!-- ============================================================= LEGACY: A-BOX -->
+<section id="abox" class="relative border-t border-white/5 py-24 sm:py-32">
+  <div class="absolute inset-0 bg-[radial-gradient(ellipse_45%_40%_at_15%_0%,rgba(34,211,238,.09),transparent_70%)]" aria-hidden="true"></div>
+
+  <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+
+    <div class="reveal flex flex-wrap items-end justify-between gap-6">
+      <div class="max-w-3xl">
+        <span class="font-mono text-xs uppercase tracking-[0.28em] text-cyan-400">03 / Legacy Innovation</span>
+        <h2 class="mt-4 text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl">
+          Project <span class="text-gradient">&ldquo;A-BOX&rdquo;</span>
+        </h2>
+      </div>
+      <div class="flex flex-wrap gap-2">
+        <span class="rounded-md bg-white/5 px-2.5 py-1 font-mono text-[10px] uppercase tracking-widest text-slate-400 ring-1 ring-white/10">Est. 2020</span>
+        <span class="rounded-md bg-white/5 px-2.5 py-1 font-mono text-[10px] uppercase tracking-widest text-slate-400 ring-1 ring-white/10">Inaugural platform</span>
+        <span class="rounded-md bg-emerald-400/10 px-2.5 py-1 font-mono text-[10px] uppercase tracking-widest text-emerald-300 ring-1 ring-emerald-400/25">Foundational</span>
+      </div>
+    </div>
+
+    <div class="mt-14 grid grid-cols-1 gap-10 lg:grid-cols-12 lg:gap-14">
+
+      <!-- Device visual -->
+      <div class="reveal lg:col-span-5">
+        <div class="group relative overflow-hidden rounded-2xl border border-white/10 bg-ink-900/50 p-1.5 transition-all duration-500 hover:border-cyan-400/30">
+          <div class="relative overflow-hidden rounded-xl bg-gradient-to-b from-ink-900 to-ink-950 pt-2">
+            <div class="tactical-grid absolute inset-0 opacity-25"></div>
+
+            <img src="ASSET:a-box.webp"
+              width="1100" height="1478" loading="lazy" decoding="async"
+              alt="The Howidely A-BOX: a compact matte-black desktop appliance carrying the Howidely mark and wordmark, photographed against a dark background."
+              class="relative mx-auto block h-auto w-full max-w-[330px] transition-transform duration-500 group-hover:scale-[1.03]" />
+
+            <div class="relative grid grid-cols-3 gap-px border-t border-white/5 bg-white/5 text-center font-mono">
+              <div class="bg-ink-950/80 px-2 py-3.5">
+                <div class="text-[9px] uppercase tracking-wider text-muted">Storage</div>
+                <div class="mt-1 text-sm font-bold text-cyan-300">4 TB</div>
+              </div>
+              <div class="bg-ink-950/80 px-2 py-3.5">
+                <div class="text-[9px] uppercase tracking-wider text-muted">Fail-safe</div>
+                <div class="mt-1 text-sm font-bold text-emerald-300">32 GB SD</div>
+              </div>
+              <div class="bg-ink-950/80 px-2 py-3.5">
+                <div class="text-[9px] uppercase tracking-wider text-muted">Monitoring</div>
+                <div class="mt-1 text-sm font-bold text-white">24/7</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Overview + specs -->
+      <div class="reveal lg:col-span-7">
+        <h3 class="font-mono text-[11px] uppercase tracking-[0.22em] text-muted">Overview</h3>
+        <p class="mt-4 text-lg leading-relaxed text-slate-400">
+          A-BOX was Howidely's inaugural platform — built in 2020 for rapid remote deployment
+          and encrypted operational connectivity. When offices emptied, it was the unit you shipped
+          to a desk, plugged into a wall outlet, and left alone: a fully customizable appliance that
+          ran the repetitive work unattended, held the data locally, and kept a secure link open
+          — while emailing you the moment anything stopped.
+        </p>
+
+        <h3 class="mt-10 font-mono text-[11px] uppercase tracking-[0.22em] text-muted">Key specifications</h3>
+        <div class="mt-5 space-y-4">
+
+          <article class="card-corner group relative overflow-hidden rounded-xl border border-white/10 bg-ink-950/60 p-6 transition-all duration-300 hover:-translate-y-0.5 hover:border-cyan-400/40 hover:bg-ink-900/60">
+            <div class="flex items-start gap-4">
+              <span class="mt-0.5 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-cyan-400/10 text-cyan-300 ring-1 ring-cyan-400/20 transition group-hover:bg-cyan-400/20">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+              </span>
+              <div class="min-w-0">
+                <h4 class="font-semibold text-white">Plug-and-play secure remote infrastructure</h4>
+                <p class="mt-2 text-sm leading-relaxed text-slate-400">
+                  Small footprint, sleek enough to sit quietly at a workstation. Plug it into a power
+                  outlet and it performs whatever task it is programmed to do &mdash; including
+                  running a secure VPN on the local server so the site stays reachable without
+                  exposing it.
+                </p>
+                <div class="mt-3.5 flex flex-wrap gap-1.5">
+                  <span class="spec-badge">Secure VPN</span>
+                  <span class="spec-badge">Local server</span>
+                  <span class="spec-badge">Desktop footprint</span>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="card-corner group relative overflow-hidden rounded-xl border border-white/10 bg-ink-950/60 p-6 transition-all duration-300 hover:-translate-y-0.5 hover:border-emerald-400/40 hover:bg-ink-900/60">
+            <div class="flex items-start gap-4">
+              <span class="mt-0.5 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-400/10 text-emerald-300 ring-1 ring-emerald-400/20 transition group-hover:bg-emerald-400/20">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12a7.5 7.5 0 0113.06-5.06M19.5 12a7.5 7.5 0 01-13.06 5.06M17.5 3.5v3.5H14M6.5 20.5V17H10"/></svg>
+              </span>
+              <div class="min-w-0">
+                <h4 class="font-semibold text-white">Automated provisioning &amp; workflow</h4>
+                <p class="mt-2 text-sm leading-relaxed text-slate-400">
+                  Advanced scripts run silently in the background with no input from the user:
+                  repetitive computer activities, form filling, data extraction, cloud storage and
+                  cloud computing management, and workflow automation across both local and cloud
+                  environments.
+                </p>
+                <div class="mt-3.5 flex flex-wrap gap-1.5">
+                  <span class="spec-badge">Data extraction</span>
+                  <span class="spec-badge">Cloud + local</span>
+                  <span class="spec-badge">Unattended</span>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="card-corner group relative overflow-hidden rounded-xl border border-white/10 bg-ink-950/60 p-6 transition-all duration-300 hover:-translate-y-0.5 hover:border-cyan-400/40 hover:bg-ink-900/60">
+            <div class="flex items-start gap-4">
+              <span class="mt-0.5 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-cyan-400/10 text-cyan-300 ring-1 ring-cyan-400/20 transition group-hover:bg-cyan-400/20">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3l7.5 3v5.25c0 4.28-3.06 8.28-7.5 9.75-4.44-1.47-7.5-5.47-7.5-9.75V6L12 3z"/><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 12l1.75 1.75 3.25-3.25"/></svg>
+              </span>
+              <div class="min-w-0">
+                <h4 class="font-semibold text-white">High-reliability unattended operation</h4>
+                <p class="mt-2 text-sm leading-relaxed text-slate-400">
+                  Fail-safe mode backed by 32&nbsp;GB of internal SD card fail-safe memory, with
+                  automated 24/7 script monitoring that emails an alert the moment a job is
+                  interrupted or storage runs low. Shipped with a 12-month limited warranty.
+                </p>
+                <div class="mt-3.5 flex flex-wrap gap-1.5">
+                  <span class="spec-badge">Fail-safe mode</span>
+                  <span class="spec-badge">24/7 monitoring</span>
+                  <span class="spec-badge">Email alerts</span>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <div class="rounded-xl border border-white/10 bg-ink-950/40 p-6">
+            <h4 class="font-mono text-[11px] uppercase tracking-[0.22em] text-muted">Also configurable as</h4>
+            <ul class="mt-4 grid grid-cols-1 gap-2.5 text-sm text-slate-400 sm:grid-cols-2">
+              <li class="flex gap-2.5"><span class="mt-0.5 text-cyan-400">&#9656;</span>Secure media server for an office or home</li>
+              <li class="flex gap-2.5"><span class="mt-0.5 text-cyan-400">&#9656;</span>Smart device control centre</li>
+              <li class="flex gap-2.5"><span class="mt-0.5 text-cyan-400">&#9656;</span>Cloud storage manager with local sync</li>
+              <li class="flex gap-2.5"><span class="mt-0.5 text-cyan-400">&#9656;</span>GPS tracking device</li>
+            </ul>
+            <p class="mt-4 font-mono text-[11px] leading-relaxed text-muted">
+              A-BOX is a fully customizable device configured to the task at hand.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= FLAGSHIP: TAK SERVER REVAMP -->
+<section id="tak" class="relative border-t border-white/5 bg-ink-900/40 py-24 sm:py-32">
+  <div class="tactical-grid radial-fade absolute inset-0 opacity-40" aria-hidden="true"></div>
+  <div class="absolute inset-0 bg-[radial-gradient(ellipse_50%_40%_at_50%_0%,rgba(52,211,153,.11),transparent_70%)]" aria-hidden="true"></div>
+
+  <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+
+    <div class="reveal max-w-4xl">
+      <div class="flex flex-wrap items-center gap-3">
+        <span class="font-mono text-xs uppercase tracking-[0.28em] text-emerald-400">04 / Flagship Product</span>
+        <span class="rounded-md bg-emerald-400/10 px-2.5 py-1 font-mono text-[10px] uppercase tracking-widest text-emerald-300 ring-1 ring-emerald-400/25">In active development</span>
+      </div>
+      <h2 class="mt-4 text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl">
+        Next-Gen <span class="text-gradient">TAK Server Revamp</span>
+      </h2>
+      <p class="mt-6 text-lg leading-relaxed text-slate-400">
+        A ground-up rebuild of the tactical server experience — the common operating picture your
+        teams already trust, delivered through a modern browser interface fast enough to run an
+        incident from. Purpose-built for the agencies that answer the call.
+      </p>
+
+      <h3 class="mt-9 font-mono text-[11px] uppercase tracking-[0.22em] text-muted">Designed for</h3>
+      <div class="mt-3.5 flex flex-wrap gap-2.5">
+        <span class="inline-flex items-center gap-2 rounded-full border border-cyan-400/25 bg-cyan-400/5 px-4 py-1.5 text-sm font-medium text-cyan-200">
+          <span class="h-1.5 w-1.5 rounded-full bg-cyan-400"></span>Public Safety
+        </span>
+        <span class="inline-flex items-center gap-2 rounded-full border border-emerald-400/25 bg-emerald-400/5 px-4 py-1.5 text-sm font-medium text-emerald-200">
+          <span class="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>Government
+        </span>
+        <span class="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-1.5 text-sm font-medium text-slate-200">
+          <span class="h-1.5 w-1.5 rounded-full bg-white/70"></span>First Responders
+        </span>
+      </div>
+    </div>
+
+    <!-- Core features grid -->
+    <h3 class="reveal mt-16 font-mono text-[11px] uppercase tracking-[0.22em] text-muted">Core capabilities</h3>
+    <div class="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+
+      <article class="feat-card group">
+        <div class="feat-num">01</div>
+        <span class="feat-icon text-cyan-300 ring-cyan-400/20 bg-cyan-400/10 group-hover:bg-cyan-400/20">
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h12A2.25 2.25 0 0120.25 6v8.25A2.25 2.25 0 0118 16.5H6a2.25 2.25 0 01-2.25-2.25V6zM8.25 20.25h7.5M12 16.5v3.75"/><path stroke-linecap="round" d="M7.5 12.75l2.25-2.5 2.25 2 2.25-3.5 2.25 4"/></svg>
+        </span>
+        <h4 class="feat-title">Redesigned Situational Awareness Dashboard</h4>
+        <p class="feat-body">
+          A modern, ultra-fast tactical UI built for legibility under stress — dense where it needs
+          to be, quiet everywhere else, and readable at a glance from across a command vehicle.
+        </p>
+        <div class="feat-badges">
+          <span class="spec-badge">Ultra-fast UI</span>
+          <span class="spec-badge">Dark tactical</span>
+          <span class="spec-badge">Glanceable</span>
+        </div>
+      </article>
+
+      <article class="feat-card group">
+        <div class="feat-num">02</div>
+        <span class="feat-icon text-emerald-300 ring-emerald-400/20 bg-emerald-400/10 group-hover:bg-emerald-400/20">
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 6.75L3.75 4.5v12.75L9 19.5m0-12.75v12.75m0-12.75l6-2.25m-6 15l6-2.25m0 0l5.25 2.25V6l-5.25-2.25m0 15V3.75"/></svg>
+        </span>
+        <h4 class="feat-title">Interactive Geospatial Mapping</h4>
+        <p class="feat-body">
+          Google Maps integration with live device populating — units, cameras and aircraft appear
+          and move on the map as they report, with no manual refresh and no stale positions.
+        </p>
+        <div class="feat-badges">
+          <span class="spec-badge">Google Maps</span>
+          <span class="spec-badge">Live populating</span>
+          <span class="spec-badge">Auto-refresh</span>
+        </div>
+      </article>
+
+      <article class="feat-card group">
+        <div class="feat-num">03</div>
+        <span class="feat-icon text-cyan-300 ring-cyan-400/20 bg-cyan-400/10 group-hover:bg-cyan-400/20">
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9A2.25 2.25 0 0013.5 5.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z"/></svg>
+        </span>
+        <h4 class="feat-title">In-Map Live Video Streaming</h4>
+        <p class="feat-body">
+          Watch active feeds directly pinned to their map location. Click a unit and its video opens
+          in place — no second application, no hunting for the right stream URL.
+        </p>
+        <div class="feat-badges">
+          <span class="spec-badge">Pinned to location</span>
+          <span class="spec-badge">Click-to-view</span>
+          <span class="spec-badge">Low latency</span>
+        </div>
+      </article>
+
+      <article class="feat-card group">
+        <div class="feat-num">04</div>
+        <span class="feat-icon text-emerald-300 ring-emerald-400/20 bg-emerald-400/10 group-hover:bg-emerald-400/20">
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 5.25h6.75v6H3.75v-6zm9.75 0h6.75v6H13.5v-6zM3.75 12.75h6.75v6H3.75v-6zm9.75 0h6.75v6H13.5v-6z"/></svg>
+        </span>
+        <h4 class="feat-title">Integrated Situational Awareness Room</h4>
+        <p class="feat-body">
+          A multi-feed tactical command center view — every active camera, drone and body-worn
+          stream on one wall, sized for a briefing room display or a supervisor's second monitor.
+        </p>
+        <div class="feat-badges">
+          <span class="spec-badge">Multi-feed</span>
+          <span class="spec-badge">Command wall</span>
+          <span class="spec-badge">Briefing-ready</span>
+        </div>
+      </article>
+
+      <article class="feat-card group">
+        <div class="feat-num">05</div>
+        <span class="feat-icon text-cyan-300 ring-cyan-400/20 bg-cyan-400/10 group-hover:bg-cyan-400/20">
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 4.5h5.25v5.25H3.75V4.5zm11.25 0h5.25v5.25H15V4.5zM3.75 14.25H9v5.25H3.75v-5.25zM15 14.25h2.25m3 0H21m-6 3h3m3 0v2.25M15 19.5h.01"/></svg>
+        </span>
+        <h4 class="feat-title">Zero-Trust Device Onboarding &amp; Enrollment</h4>
+        <p class="feat-body">
+          Secure, verified registration for every endpoint class — IP cameras, drones and UAVs,
+          Android handsets via ATAK and iOS handsets via iTAK. Nothing joins the picture unproven.
+        </p>
+        <div class="feat-badges">
+          <span class="spec-badge">IP Cameras</span>
+          <span class="spec-badge">Drones / UAV</span>
+          <span class="spec-badge">Android · ATAK</span>
+          <span class="spec-badge">iOS · iTAK</span>
+        </div>
+      </article>
+
+      <article class="feat-card group">
+        <div class="feat-num">06</div>
+        <span class="feat-icon text-emerald-300 ring-emerald-400/20 bg-emerald-400/10 group-hover:bg-emerald-400/20">
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244"/></svg>
+        </span>
+        <h4 class="feat-title">Native Compatibility</h4>
+        <p class="feat-body">
+          100% interoperability with existing ATAK and iTAK ecosystems. Crews keep the app they
+          trained on, keep their muscle memory, and gain a command-side view they never had.
+        </p>
+        <div class="feat-badges">
+          <span class="spec-badge">ATAK</span>
+          <span class="spec-badge">iTAK</span>
+          <span class="spec-badge">100% interop</span>
+        </div>
+      </article>
+
+    </div>
+
+    <!-- Live interface preview -->
+    <h3 class="reveal mt-16 font-mono text-[11px] uppercase tracking-[0.22em] text-muted">Live interface &mdash; mirrors the current build, interact with it</h3>
+
+    <!-- ================================================== Console replica -->
+    <div class="reveal mt-14 overflow-hidden rounded-2xl border border-white/10 bg-ink-950 shadow-2xl shadow-black/60">
+
+      <!-- Emergency banner -->
+      <div id="tak-alert" role="alert" class="z-30 hidden items-center justify-between gap-4 bg-rose-600/90 px-5 py-2.5 font-mono text-xs font-semibold text-white">
+        <span>&#128680; EMERGENCY: Andy-iOS — 9-1-1 alert broadcast to all clients</span>
+        <button type="button" id="tak-alert-x" class="rounded px-2 py-0.5 text-white transition hover:bg-white/20 hover:text-white" aria-label="Dismiss alert">&#10005;</button>
+      </div>
+
+      <!-- Topbar -->
+      <div class="flex flex-wrap items-center gap-2 border-b border-white/10 bg-ink-900/70 px-4 py-3">
+        <span class="mr-1 font-bold tracking-tight text-white">TAK<span class="text-cyan-300"> Revamp</span></span>
+        <span class="flex items-center gap-1.5 rounded-full bg-emerald-400/10 px-2.5 py-1 font-mono text-[10px] uppercase tracking-wider text-emerald-300 ring-1 ring-emerald-400/25">
+          <span class="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>live
+        </span>
+        <span class="rounded-full bg-white/5 px-2.5 py-1 font-mono text-[10px] uppercase tracking-wider text-slate-400" id="tak-devcount">3 devices</span>
+        <span class="hidden rounded-full bg-white/5 px-2.5 py-1 font-mono text-[10px] uppercase tracking-wider text-cyan-300 sm:inline" id="tak-location">—</span>
+
+        <div class="ml-auto flex flex-wrap items-center gap-1.5" id="tak-tabs" role="tablist" aria-label="TAK Revamp panels">
+          <button type="button" class="tak-tab" data-panel="enroll"   role="tab">&#10133; Enroll device</button>
+          <button type="button" class="tak-tab" data-panel="users"    role="tab">&#128101; Users</button>
+          <button type="button" class="tak-tab" data-panel="chat"     role="tab">&#128172; Chat</button>
+          <button type="button" class="tak-tab" data-panel="playback" role="tab">&#9201; Playback</button>
+          <button type="button" class="tak-tab" data-panel="cameras"  role="tab">&#8862; Cameras</button>
+          <button type="button" class="tak-tab" data-panel="map"      role="tab">&#10530; Fit all</button>
+        </div>
+
+        <div class="flex items-center gap-2 pl-2 font-mono text-[11px]">
+          <span class="text-white">admin</span><span class="text-muted">· admin</span>
+        </div>
+      </div>
+
+      <!-- Stage -->
+      <div class="relative h-[30rem] bg-gradient-to-br from-ink-900 to-ink-950">
+
+        <!-- Map layer -->
+        <div id="tak-map" class="tactical-grid absolute inset-0 overflow-hidden">
+          <!-- real map tiles are injected here; styled grid shows if they are unreachable -->
+          <!-- device markers injected here -->
+          <div class="pointer-events-none absolute bottom-3 right-3 rounded bg-ink-950/80 px-2 py-1 font-mono text-[9px] text-muted">
+            &#169; OpenStreetMap contributors &#169; CARTO
+          </div>
+        </div>
+
+        <!-- Devices roster (floating, like the real app) -->
+        <aside class="absolute right-4 top-4 z-10 w-64 rounded-xl border border-white/10 bg-ink-950/95 p-4 shadow-xl">
+          <h3 class="font-mono text-[10px] uppercase tracking-[0.2em] text-muted">Devices</h3>
+          <ul id="tak-roster" class="mt-3 space-y-1"></ul>
+          <button type="button" id="tak-addcam" class="mt-3 w-full rounded-lg border border-dashed border-cyan-400/40 px-3 py-2 font-mono text-[11px] text-cyan-300 transition hover:bg-cyan-400/10">+ Add IP camera</button>
+        </aside>
+
+        <!-- Chat panel -->
+        <section data-panel-body="chat" class="tak-panel absolute z-30 bottom-4 left-4 hidden w-[22rem] max-w-[calc(100%-2rem)] overflow-hidden rounded-xl border border-white/10 bg-ink-950/95 shadow-2xl backdrop-blur">
+          <header class="flex items-center justify-between border-b border-white/10 px-4 py-2.5">
+            <h3 class="font-mono text-[11px] uppercase tracking-wider text-slate-300">Team Chat</h3>
+            <button type="button" class="tak-close text-muted transition hover:text-white" aria-label="Close chat">&#10005;</button>
+          </header>
+          <ul id="tak-chat" tabindex="0" aria-label="Team chat messages" class="thin-scroll h-48 space-y-2.5 overflow-y-auto px-4 py-3 text-xs focus-visible:ring-2 focus-visible:ring-cyan-400"></ul>
+          <form id="tak-chat-form" class="flex gap-2 border-t border-white/10 p-3">
+            <label for="tak-chat-input" class="sr-only">Message</label>
+            <input id="tak-chat-input" type="text" placeholder="Message the team…" autocomplete="off"
+              class="flex-1 rounded-lg border border-white/10 bg-ink-900 px-3 py-2 font-mono text-xs text-slate-200 placeholder-slate-400 outline-none focus:border-cyan-400/50" />
+            <button type="submit" class="rounded-lg bg-cyan-400 px-3 py-2 text-xs font-semibold text-ink-950 transition hover:bg-cyan-300">Send</button>
+          </form>
+        </section>
+
+        <!-- Playback bar -->
+        <section data-panel-body="playback" class="tak-panel absolute z-30 inset-x-4 bottom-4 hidden rounded-xl border border-white/10 bg-ink-950/95 p-4 shadow-2xl backdrop-blur">
+          <div class="flex items-center gap-4">
+            <button type="button" id="tak-play" class="rounded-lg bg-cyan-400 px-3 py-1.5 text-sm font-bold text-ink-950 transition hover:bg-cyan-300" aria-label="Play track history">&#9654;</button>
+            <input id="tak-scrub" type="range" min="0" max="120" value="0" class="h-1 flex-1 cursor-pointer appearance-none rounded-full bg-white/10 accent-cyan-400" aria-label="Track history position" />
+            <span id="tak-scrub-label" class="w-28 shrink-0 text-right font-mono text-[11px] text-slate-400">T-120 min</span>
+            <button type="button" class="tak-close font-mono text-[11px] text-muted transition hover:text-white" aria-label="Close playback">&#10005;</button>
+          </div>
+          <p class="mt-2.5 font-mono text-[10px] uppercase tracking-wider text-muted">Track history · trailing 120 minutes · replays every device path</p>
+        </section>
+
+        <!-- Cameras grid -->
+        <section data-panel-body="cameras" class="tak-panel absolute z-30 inset-4 hidden overflow-hidden rounded-xl border border-white/10 bg-ink-950/95 shadow-2xl backdrop-blur">
+          <header class="flex items-center justify-between border-b border-white/10 px-4 py-2.5">
+            <h3 class="font-mono text-[11px] uppercase tracking-wider text-slate-300">Cameras &mdash; live streams</h3>
+            <button type="button" class="tak-close text-muted transition hover:text-white" aria-label="Close cameras">&#10005;</button>
+          </header>
+          <div class="grid grid-cols-1 gap-3 p-4 sm:grid-cols-3">
+            <div data-cam="Andy" class="relative aspect-video overflow-hidden rounded-lg border border-white/10 bg-ink-900">
+              <div class="tactical-grid absolute inset-0 opacity-50"></div>
+              <span class="absolute left-2 top-2 z-10 rounded bg-rose-700 px-1.5 py-0.5 font-mono text-[9px] font-bold text-white">&#9679; REC</span>
+              <span class="absolute bottom-2 left-2 z-10 font-mono text-[10px] text-white">Andy</span>
+            </div>
+            <div data-cam="Andy iphone" class="relative aspect-video overflow-hidden rounded-lg border border-white/10 bg-ink-900">
+              <div class="tactical-grid absolute inset-0 opacity-50"></div>
+              <span class="absolute left-2 top-2 z-10 rounded bg-emerald-700 px-1.5 py-0.5 font-mono text-[9px] font-bold text-white">LIVE</span>
+              <span class="absolute bottom-2 left-2 z-10 font-mono text-[10px] text-white">Andy iphone</span>
+            </div>
+            <div data-cam="Andy-iOS" class="relative aspect-video overflow-hidden rounded-lg border border-white/10 bg-ink-900">
+              <div class="tactical-grid absolute inset-0 opacity-50"></div>
+              <span class="absolute left-2 top-2 z-10 rounded bg-emerald-700 px-1.5 py-0.5 font-mono text-[9px] font-bold text-white">LIVE</span>
+              <span class="absolute bottom-2 left-2 z-10 font-mono text-[10px] text-white">Andy-iOS</span>
+            </div>
+          </div>
+          <p class="px-4 pb-4 font-mono text-[10px] text-muted">Device cameras and IP cameras share one grid. Streams can be recorded server-side and replayed from the recordings list.</p>
+        </section>
+
+        <!-- Users panel -->
+        <section data-panel-body="users" class="tak-panel absolute z-30 inset-4 hidden overflow-auto rounded-xl border border-white/10 bg-ink-950/95 shadow-2xl backdrop-blur">
+          <header class="flex items-center justify-between border-b border-white/10 px-4 py-2.5">
+            <h3 class="font-mono text-[11px] uppercase tracking-wider text-slate-300">Web logins &mdash; role matrix</h3>
+            <button type="button" class="tak-close text-muted transition hover:text-white" aria-label="Close users">&#10005;</button>
+          </header>
+          <div class="p-4">
+            <p class="mb-4 text-xs leading-relaxed text-slate-400">
+              People who can sign in to the map. Only <span class="font-semibold text-white">admins</span>
+              can enroll devices and manage users; viewer and operator logins can watch the map but
+              cannot enroll.
+            </p>
+            <table class="w-full border-collapse text-left font-mono text-[11px]">
+              <thead>
+                <tr class="border-b border-white/10 text-[10px] uppercase tracking-wider text-muted">
+                  <th scope="col" class="py-2 pr-3 font-medium">Role</th>
+                  <th scope="col" class="px-3 py-2 font-medium">View map</th>
+                  <th scope="col" class="px-3 py-2 font-medium">Chat &amp; cameras</th>
+                  <th scope="col" class="px-3 py-2 font-medium">Enroll &amp; manage</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-white/5">
+                <tr><td class="py-2.5 pr-3 text-white">viewer</td><td class="px-3 py-2.5 text-emerald-400">&#10003;</td><td class="px-3 py-2.5 text-muted">&mdash;</td><td class="px-3 py-2.5 text-muted">&mdash;</td></tr>
+                <tr><td class="py-2.5 pr-3 text-white">operator</td><td class="px-3 py-2.5 text-emerald-400">&#10003;</td><td class="px-3 py-2.5 text-emerald-400">&#10003;</td><td class="px-3 py-2.5 text-muted">&mdash;</td></tr>
+                <tr><td class="py-2.5 pr-3 text-white">admin</td><td class="px-3 py-2.5 text-emerald-400">&#10003;</td><td class="px-3 py-2.5 text-emerald-400">&#10003;</td><td class="px-3 py-2.5 text-emerald-400">&#10003;</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Enroll panel -->
+        <section data-panel-body="enroll" class="tak-panel absolute z-30 inset-4 hidden overflow-auto rounded-xl border border-white/10 bg-ink-950/95 shadow-2xl backdrop-blur">
+          <header class="flex items-center justify-between border-b border-white/10 px-4 py-2.5">
+            <h3 class="font-mono text-[11px] uppercase tracking-wider text-slate-300">Enroll device</h3>
+            <button type="button" class="tak-close text-muted transition hover:text-white" aria-label="Close enrollment">&#10005;</button>
+          </header>
+          <div class="grid grid-cols-1 items-center gap-6 p-6 sm:grid-cols-2">
+            <div class="mx-auto grid h-40 w-40 grid-cols-8 grid-rows-8 gap-0.5 rounded-lg bg-white p-2" id="tak-qr" role="img" aria-label="Example enrollment QR code"></div>
+            <div>
+              <p class="text-sm leading-relaxed text-slate-300">
+                Enrollment issues a single-use token rendered as a QR code. The operator scans it from
+                ATAK or iTAK and the device appears on the roster — no manual server address, port or
+                profile entry on the handset.
+              </p>
+              <ul class="mt-4 space-y-1.5 font-mono text-[11px] text-muted">
+                <li>&#8226; single-use, expiring token</li>
+                <li>&#8226; scan from the handset camera</li>
+                <li>&#8226; admin-only operation</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+      </div>
+
+      <!-- Console footer -->
+      <div class="flex flex-wrap items-center justify-between gap-3 border-t border-white/10 bg-ink-900/60 px-5 py-3 font-mono text-[10px] uppercase tracking-wider text-muted">
+        <span>Interface preview &mdash; positions and video are simulated</span>
+        <button type="button" id="tak-emergency" class="rounded border border-rose-500/40 px-2 py-1 text-rose-300 transition hover:bg-rose-500/15">Trigger emergency demo</button>
+      </div>
+    </div>
+
+    <noscript>
+      <p class="mt-6 rounded-xl border border-amber-400/30 bg-amber-400/5 p-4 text-sm text-amber-200">
+        The Situational Awareness Room simulation requires JavaScript. The rest of this page works without it.
+      </p>
+    </noscript>
+  </div>
+</section>
+
+<!-- ============================================================= ROADMAP: TO BE RELEASED SOON -->
+<section id="roadmap" class="relative overflow-hidden border-t border-white/5 py-24 sm:py-32">
+  <div class="absolute inset-0 bg-[radial-gradient(ellipse_55%_45%_at_50%_0%,rgba(167,139,250,.10),transparent_70%)]" aria-hidden="true"></div>
+  <div class="tactical-grid radial-fade absolute inset-0 opacity-30" aria-hidden="true"></div>
+
+  <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+
+    <div class="reveal max-w-3xl">
+      <div class="flex flex-wrap items-center gap-3">
+        <span class="font-mono text-xs uppercase tracking-[0.28em] text-violet-300">05 / Roadmap</span>
+        <span class="inline-flex items-center gap-1.5 rounded-md bg-violet-400/10 px-2.5 py-1 font-mono text-[10px] uppercase tracking-widest text-violet-200 ring-1 ring-violet-400/30">
+          <span class="h-1.5 w-1.5 rounded-full bg-violet-300"></span>In development
+        </span>
+      </div>
+      <h2 class="mt-4 text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl">To Be Released Soon</h2>
+      <p class="mt-6 text-lg leading-relaxed text-slate-400">
+        The next release turns the map into a command center. Every camera, drone and handheld on one
+        wall, with a device inspector, live telemetry and zero-trust onboarding built in. The
+        simulation below is a working preview of that interface &mdash; explore it, but note that it
+        is not yet part of the shipping build.
+      </p>
+    </div>
+
+    <!-- Unreleased notice -->
+    <div class="reveal mt-10 flex flex-wrap items-center gap-3 rounded-xl border border-violet-400/25 bg-violet-400/[0.06] px-5 py-4">
+      <svg class="h-5 w-5 shrink-0 text-violet-300" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"/>
+      </svg>
+      <p class="text-sm text-violet-100">
+        <span class="font-semibold">Preview only.</span>
+        <span class="text-violet-200">Not available in the current release. Roadmap features and timing are subject to change.</span>
+      </p>
+      <a href="#contact" class="ml-auto shrink-0 rounded-lg border border-violet-400/40 px-4 py-2 text-xs font-semibold text-violet-100 transition hover:bg-violet-400/15">
+        Ask about early access
+      </a>
+    </div>
+
+    <h3 class="reveal mt-14 font-mono text-[11px] uppercase tracking-[0.22em] text-muted">Situational Awareness Room &mdash; interactive preview</h3>
+
+    <!-- ================================================== Situational Awareness Room -->
+    <div class="reveal mt-6 overflow-hidden rounded-2xl border border-white/10 bg-ink-950 shadow-2xl shadow-black/60">
+
+      <!-- Console header -->
+      <div class="flex flex-wrap items-center gap-3 border-b border-white/10 bg-ink-900/70 px-4 py-3">
+        <span class="flex items-center gap-2 font-mono text-[11px] uppercase tracking-widest text-slate-300">
+          <span class="relative flex h-2 w-2"><span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span><span class="relative inline-flex h-2 w-2 rounded-full bg-emerald-400"></span></span>
+          Situational Awareness Room
+        </span>
+        <span class="rounded bg-white/5 px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider text-muted ring-1 ring-white/10">Simulation</span>
+        <span class="hidden font-mono text-[10px] uppercase tracking-wider text-violet-200 sm:inline" id="sar-location">—</span>
+
+        <div class="ml-auto flex flex-wrap items-center gap-2">
+          <span class="font-mono text-[11px] text-muted"><span id="sar-count" class="text-white">0</span> nodes</span>
+          <span id="sar-clock" class="hidden font-mono text-[11px] text-cyan-300 sm:inline">--:--:--Z</span>
+          <button type="button" id="sar-enroll-open"
+            class="rounded-lg bg-cyan-400 px-3 py-1.5 font-mono text-[11px] font-bold uppercase tracking-wider text-ink-950 transition hover:bg-cyan-300">
+            + Enroll New Node
+          </button>
+        </div>
+      </div>
+
+      <!-- Filter chips -->
+      <div class="flex flex-wrap items-center gap-1.5 border-b border-white/5 px-4 py-2.5" id="sar-filters" role="group" aria-label="Filter nodes by class">
+        <button type="button" class="sar-chip" data-kind="ALL">All nodes</button>
+        <button type="button" class="sar-chip" data-kind="PATROL">Patrol · ATAK</button>
+        <button type="button" class="sar-chip" data-kind="COMMAND">Command · iTAK</button>
+        <button type="button" class="sar-chip" data-kind="DRONE">Recon Drone</button>
+        <button type="button" class="sar-chip" data-kind="CAMERA">Perimeter IP Cam</button>
+      </div>
+
+      <div class="grid grid-cols-1 gap-px bg-white/5 lg:grid-cols-12">
+
+        <!-- ============ Map ============ -->
+        <div class="relative bg-ink-950 lg:col-span-8">
+          <div id="sar-map" class="tactical-grid relative h-[30rem] overflow-hidden bg-gradient-to-br from-ink-900 to-ink-950">
+            <!-- real map tiles are injected here; styled grid shows if they are unreachable -->
+            <!-- pins injected here -->
+          </div>
+
+          <!-- Legend -->
+          <div class="flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-white/5 px-4 py-2.5 font-mono text-[10px] uppercase tracking-wider text-muted">
+            <span class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-cyan-400"></span>Patrol · Android/ATAK</span>
+            <span class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-amber-300"></span>Command · iOS/iTAK</span>
+            <span class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-emerald-400"></span>Recon Drone</span>
+            <span class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-sm bg-violet-400"></span>Perimeter IP Cam</span>
+            <span class="ml-auto hidden text-muted sm:inline">&#169; OpenStreetMap &#169; CARTO · imagery Esri · click a node to inspect</span>
+          </div>
+
+          <!-- ============ Device inspector overlay ============ -->
+          <div id="sar-inspector" class="absolute inset-0 z-20 hidden bg-ink-950/95" role="dialog" aria-modal="false" aria-labelledby="sar-insp-title">
+            <div class="flex h-full flex-col">
+              <header class="flex items-center justify-between border-b border-white/10 px-4 py-3">
+                <div class="flex items-center gap-3">
+                  <span id="sar-insp-dot" class="h-2.5 w-2.5 rounded-full bg-emerald-400"></span>
+                  <h4 id="sar-insp-title" class="font-mono text-sm font-bold tracking-wide text-white">&mdash;</h4>
+                  <span id="sar-insp-kind" class="rounded bg-white/5 px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider text-slate-400 ring-1 ring-white/10">&mdash;</span>
+                </div>
+                <button type="button" id="sar-insp-close" class="rounded-lg border border-white/10 px-2.5 py-1 font-mono text-[11px] text-slate-400 transition hover:border-cyan-400/40 hover:text-cyan-300" aria-label="Close inspector">&#10005; Close</button>
+              </header>
+
+              <div class="thin-scroll grid flex-1 grid-cols-1 gap-px overflow-y-auto bg-white/5 md:grid-cols-2">
+
+                <!-- Video feed -->
+                <div class="bg-ink-950 p-4">
+                  <div class="mb-2.5 flex items-center justify-between">
+                    <span class="font-mono text-[10px] uppercase tracking-wider text-muted">Live feed</span>
+                    <span id="sar-feed-state" class="font-mono text-[10px] uppercase tracking-wider text-muted">&mdash;</span>
+                  </div>
+                  <div class="relative aspect-video overflow-hidden rounded-lg border border-white/10 bg-black">
+                    <div id="sar-feed" class="absolute inset-0 overflow-hidden bg-black"></div>
+                    <div id="sar-nofeed" class="absolute inset-0 hidden items-center justify-center bg-ink-900/90 text-center">
+                      <span class="px-6 font-mono text-[11px] leading-relaxed text-muted">no video payload on this node<br>telemetry only</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Telemetry -->
+                <div class="bg-ink-950 p-4">
+                  <span class="font-mono text-[10px] uppercase tracking-wider text-muted">Device telemetry</span>
+                  <dl class="mt-3 space-y-px overflow-hidden rounded-lg bg-white/5">
+                    <div class="flex items-center justify-between gap-4 bg-ink-950 px-3 py-2.5">
+                      <dt class="font-mono text-[11px] uppercase tracking-wider text-muted">Battery</dt>
+                      <dd class="flex items-center gap-2">
+                        <span class="h-1.5 w-20 overflow-hidden rounded-full bg-white/10"><span id="sar-batt-bar" class="block h-full rounded-full bg-emerald-400 transition-all duration-500" style="width:0%"></span></span>
+                        <span id="sar-batt" class="w-10 text-right font-mono text-xs text-white">&mdash;</span>
+                      </dd>
+                    </div>
+                    <div class="flex items-center justify-between gap-4 bg-ink-950 px-3 py-2.5">
+                      <dt class="font-mono text-[11px] uppercase tracking-wider text-muted">Signal</dt>
+                      <dd class="flex items-center gap-2">
+                        <span id="sar-sig-bars" class="flex items-end gap-0.5"></span>
+                        <span id="sar-sig" class="w-16 text-right font-mono text-xs text-white">&mdash;</span>
+                      </dd>
+                    </div>
+                    <div class="flex items-center justify-between gap-4 bg-ink-950 px-3 py-2.5">
+                      <dt class="font-mono text-[11px] uppercase tracking-wider text-muted">Coordinates</dt>
+                      <dd id="sar-coords" class="font-mono text-xs text-cyan-300">&mdash;</dd>
+                    </div>
+                    <div class="flex items-center justify-between gap-4 bg-ink-950 px-3 py-2.5">
+                      <dt class="font-mono text-[11px] uppercase tracking-wider text-muted">Encryption</dt>
+                      <dd id="sar-enc" class="flex items-center gap-1.5 font-mono text-xs text-emerald-300">&mdash;</dd>
+                    </div>
+                    <div class="flex items-center justify-between gap-4 bg-ink-950 px-3 py-2.5">
+                      <dt class="font-mono text-[11px] uppercase tracking-wider text-muted">Transport</dt>
+                      <dd id="sar-transport" class="font-mono text-xs text-slate-300">&mdash;</dd>
+                    </div>
+                    <div class="flex items-center justify-between gap-4 bg-ink-950 px-3 py-2.5">
+                      <dt class="font-mono text-[11px] uppercase tracking-wider text-muted">Last CoT</dt>
+                      <dd id="sar-lastcot" class="font-mono text-xs text-slate-300">&mdash;</dd>
+                    </div>
+                  </dl>
+                  <p id="sar-insp-note" class="mt-3 font-mono text-[10px] leading-relaxed text-muted"></p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ============ Tactical feed console ============ -->
+        <div class="flex flex-col bg-ink-950 lg:col-span-4">
+          <div class="flex items-center justify-between border-b border-white/5 px-4 py-2.5">
+            <span class="font-mono text-[10px] uppercase tracking-wider text-muted">Tactical Feed Console</span>
+            <div class="flex gap-1.5">
+              <button type="button" id="sar-log-pause" class="rounded border border-white/10 px-2 py-1 font-mono text-[10px] uppercase tracking-wider text-slate-400 transition hover:border-cyan-400/40 hover:text-cyan-300">Pause</button>
+              <button type="button" id="sar-log-clear" class="rounded border border-white/10 px-2 py-1 font-mono text-[10px] uppercase tracking-wider text-slate-400 transition hover:border-rose-400/40 hover:text-rose-300">Clear</button>
+            </div>
+          </div>
+          <ul id="sar-log" tabindex="0" aria-label="Tactical feed console" class="thin-scroll h-[26.5rem] space-y-1 overflow-y-auto px-3 py-3 font-mono text-[11px] leading-relaxed focus-visible:ring-2 focus-visible:ring-cyan-400" aria-live="off"></ul>
+          <div class="mt-auto grid grid-cols-3 gap-px border-t border-white/5 bg-white/5 text-center">
+            <div class="bg-ink-950 px-2 py-3">
+              <div class="font-mono text-[9px] uppercase tracking-wider text-muted">Streams</div>
+              <div id="sar-kpi-streams" class="mt-0.5 font-mono text-sm font-bold text-emerald-300">0</div>
+            </div>
+            <div class="bg-ink-950 px-2 py-3">
+              <div class="font-mono text-[9px] uppercase tracking-wider text-muted">Avg latency</div>
+              <div id="sar-kpi-lat" class="mt-0.5 font-mono text-sm font-bold text-cyan-300">&mdash;</div>
+            </div>
+            <div class="bg-ink-950 px-2 py-3">
+              <div class="font-mono text-[9px] uppercase tracking-wider text-muted">Encrypted</div>
+              <div id="sar-kpi-enc" class="mt-0.5 font-mono text-sm font-bold text-white">100%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="border-t border-white/10 bg-ink-900/60 px-5 py-3 font-mono text-[10px] uppercase tracking-wider text-muted">
+        Simulated environment &mdash; no live systems, feeds or certificates are involved
+      </div>
+    </div>
+
+    <!-- ============ Enrollment modal ============ -->
+    <div id="sar-modal" class="fixed inset-0 z-[60] hidden items-center justify-center bg-black/75 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="sar-modal-title">
+      <div class="w-full max-w-lg overflow-hidden rounded-2xl border border-white/10 bg-ink-950 shadow-2xl">
+        <header class="flex items-center justify-between border-b border-white/10 px-5 py-3.5">
+          <h4 id="sar-modal-title" class="font-mono text-xs uppercase tracking-widest text-slate-200">Zero-Trust Node Enrollment</h4>
+          <button type="button" id="sar-modal-close" class="text-muted transition hover:text-white" aria-label="Close enrollment">&#10005;</button>
+        </header>
+
+        <!-- step 1: choose -->
+        <div id="sar-step-form" class="p-5">
+          <span class="font-mono text-[10px] uppercase tracking-wider text-muted">Node class</span>
+          <div class="mt-2.5 grid grid-cols-2 gap-2" id="sar-kind-picker" role="radiogroup" aria-label="Node class">
+            <button type="button" class="sar-kind" data-kind="PATROL">&#128241; Android · ATAK</button>
+            <button type="button" class="sar-kind" data-kind="COMMAND">&#128242; iOS · iTAK</button>
+            <button type="button" class="sar-kind" data-kind="DRONE">&#128760; Recon Drone</button>
+            <button type="button" class="sar-kind" data-kind="CAMERA">&#128247; IP Camera</button>
+          </div>
+
+          <label for="sar-callsign" class="mt-5 block font-mono text-[10px] uppercase tracking-wider text-muted">Callsign</label>
+          <input id="sar-callsign" type="text" maxlength="14" autocomplete="off" aria-describedby="sar-callsign-err" placeholder="PATROL-12"
+            class="mt-2 w-full rounded-lg border border-white/10 bg-ink-900 px-3 py-2.5 font-mono text-sm uppercase text-white placeholder-slate-400 outline-none transition focus:border-cyan-400/60 focus:ring-2 focus:ring-cyan-400" />
+          <p id="sar-callsign-err" role="alert" class="mt-1.5 hidden font-mono text-[11px] text-rose-400">Use 3&ndash;14 letters, numbers or hyphens.</p>
+
+          <button type="button" id="sar-begin"
+            class="mt-5 w-full rounded-xl bg-cyan-400 px-5 py-3 font-mono text-xs font-bold uppercase tracking-wider text-ink-950 transition hover:bg-cyan-300">
+            Begin certificate validation
+          </button>
+        </div>
+
+        <!-- step 2: validation -->
+        <div id="sar-step-run" class="hidden p-5">
+          <div class="mb-4 flex items-center justify-between">
+            <span class="font-mono text-[10px] uppercase tracking-wider text-muted">Validating <span id="sar-run-name" class="text-white">&mdash;</span></span>
+            <span id="sar-run-pct" class="font-mono text-[11px] text-cyan-300">0%</span>
+          </div>
+          <div class="h-1 overflow-hidden rounded-full bg-white/10">
+            <div id="sar-run-bar" class="h-full rounded-full bg-gradient-to-r from-cyan-400 to-emerald-400 transition-all duration-300" style="width:0%"></div>
+          </div>
+          <ul id="sar-run-steps" class="mt-5 space-y-2.5 font-mono text-[11px]"></ul>
+          <button type="button" id="sar-run-done"
+            class="mt-6 hidden w-full rounded-xl bg-emerald-400 px-5 py-3 font-mono text-xs font-bold uppercase tracking-wider text-ink-950 transition hover:bg-emerald-300">
+            Node online &mdash; return to map
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <noscript>
+      <p class="mt-6 rounded-xl border border-amber-400/30 bg-amber-400/5 p-4 text-sm text-amber-200">
+        The Situational Awareness Room preview requires JavaScript. The rest of this page works without it.
+      </p>
+    </noscript>
+  </div>
+</section>
+
+<!-- ============================================================= PROJECTS -->
+<section id="projects" class="relative border-t border-white/5 py-24 sm:py-32">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+
+    <div class="reveal flex flex-wrap items-end justify-between gap-6">
+      <div class="max-w-3xl">
+        <span class="font-mono text-xs uppercase tracking-[0.28em] text-cyan-400">06 / Projects</span>
+        <h2 class="mt-4 text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl">Solutions in the field</h2>
+        <p class="mt-6 text-lg leading-relaxed text-slate-400">
+          Representative programs across connectivity, tactical awareness and hardware validation.
+        </p>
+      </div>
+      <a href="#contact" class="inline-flex items-center gap-2 text-sm font-semibold text-cyan-300 hover:text-cyan-200">
+        Discuss a program
+        <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m-6-6l6 6-6 6"/></svg>
+      </a>
+    </div>
+
+    <div class="mt-16 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+
+
+
+      <!-- UAV -->
+      <article class="reveal group relative flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-ink-900/50 transition-all duration-300 hover:-translate-y-1.5 hover:border-cyan-400/30">
+        <div class="relative h-40 overflow-hidden bg-gradient-to-br from-cyan-500/10 via-ink-900 to-ink-950">
+          <div class="tactical-grid absolute inset-0 opacity-60"></div>
+          <svg viewBox="0 0 200 100" class="absolute inset-0 h-full w-full" aria-hidden="true">
+            <path d="M100 30l-16 14m16-14l16 14m-16-14v34" stroke="rgba(103,232,249,.5)" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+            <ellipse cx="84" cy="44" rx="13" ry="3.5" fill="none" stroke="rgba(52,211,153,.5)" stroke-width="1.2"/>
+            <ellipse cx="116" cy="44" rx="13" ry="3.5" fill="none" stroke="rgba(52,211,153,.5)" stroke-width="1.2"/>
+            <path d="M100 66c-18 6-30 10-46 12m46-12c18 6 30 10 46 12" stroke="rgba(103,232,249,.22)" stroke-width="1" fill="none" stroke-dasharray="3 4"/>
+          </svg>
+          <span class="absolute left-4 top-4 rounded-md bg-ink-950/80 px-2.5 py-1 font-mono text-[10px] uppercase tracking-widest text-cyan-300 ring-1 ring-cyan-400/25">Airborne</span>
+        </div>
+        <div class="flex flex-1 flex-col p-7">
+          <h3 class="text-lg font-semibold text-white">UAV Downlink Integration</h3>
+          <p class="mt-3 flex-1 text-sm leading-relaxed text-slate-400">
+            Payload and telemetry integration for unmanned platforms, pushing live video and position
+            into the same operating picture ground crews and incident command already run.
+          </p>
+          <ul class="mt-5 flex flex-wrap gap-2">
+            <li class="rounded-md bg-white/5 px-2.5 py-1 font-mono text-[11px] text-slate-400">MAVLink</li>
+            <li class="rounded-md bg-white/5 px-2.5 py-1 font-mono text-[11px] text-slate-400">RTSP</li>
+            <li class="rounded-md bg-white/5 px-2.5 py-1 font-mono text-[11px] text-slate-400">Telemetry</li>
+          </ul>
+        </div>
+      </article>
+
+      <!-- Dispatch continuity -->
+      <article class="reveal group relative flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-ink-900/50 p-7 transition-all duration-300 hover:-translate-y-1.5 hover:border-emerald-400/30">
+        <span class="font-mono text-[10px] uppercase tracking-widest text-emerald-400">Continuity</span>
+        <h3 class="mt-3 text-lg font-semibold text-white">Remote Dispatch Continuity</h3>
+        <p class="mt-3 flex-1 text-sm leading-relaxed text-slate-400">
+          Distributed console positions with hardened remote access, session recording and
+          deterministic failover — so a dispatch floor can operate from three locations at once.
+        </p>
+        <ul class="mt-5 flex flex-wrap gap-2">
+          <li class="rounded-md bg-white/5 px-2.5 py-1 font-mono text-[11px] text-slate-400">Zero-trust</li>
+          <li class="rounded-md bg-white/5 px-2.5 py-1 font-mono text-[11px] text-slate-400">Failover</li>
+        </ul>
+      </article>
+
+      <!-- Validation rig -->
+      <article class="reveal group relative flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-ink-900/50 p-7 transition-all duration-300 hover:-translate-y-1.5 hover:border-emerald-400/30">
+        <span class="font-mono text-[10px] uppercase tracking-widest text-cyan-400">Validation</span>
+        <h3 class="mt-3 text-lg font-semibold text-white">Automated HW Validation Rig</h3>
+        <p class="mt-3 flex-1 text-sm leading-relaxed text-slate-400">
+          Python-driven regression benches with instrument control, thermal soak profiles and
+          automated report generation — turning a week of manual testing into an overnight run.
+        </p>
+        <ul class="mt-5 flex flex-wrap gap-2">
+          <li class="rounded-md bg-white/5 px-2.5 py-1 font-mono text-[11px] text-slate-400">Python</li>
+          <li class="rounded-md bg-white/5 px-2.5 py-1 font-mono text-[11px] text-slate-400">SCPI</li>
+          <li class="rounded-md bg-white/5 px-2.5 py-1 font-mono text-[11px] text-slate-400">CI</li>
+        </ul>
+      </article>
+
+      <!-- Interop -->
+      <article class="reveal group relative flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-ink-900/50 p-7 transition-all duration-300 hover:-translate-y-1.5 hover:border-cyan-400/30">
+        <span class="font-mono text-[10px] uppercase tracking-widest text-emerald-400">Interop</span>
+        <h3 class="mt-3 text-lg font-semibold text-white">Multi-Agency Interoperability</h3>
+        <p class="mt-3 flex-1 text-sm leading-relaxed text-slate-400">
+          Bridging fire, EMS, law enforcement and emergency management onto shared awareness without
+          forcing any of them to abandon the systems they already trained on.
+        </p>
+        <ul class="mt-5 flex flex-wrap gap-2">
+          <li class="rounded-md bg-white/5 px-2.5 py-1 font-mono text-[11px] text-slate-400">Gateways</li>
+          <li class="rounded-md bg-white/5 px-2.5 py-1 font-mono text-[11px] text-slate-400">CAD</li>
+        </ul>
+      </article>
+
+    </div>
+
+    <p class="reveal mt-10 font-mono text-xs text-muted">
+      * Program descriptions are representative. Specific client engagements available under NDA.
+    </p>
+  </div>
+</section>
+
+<!-- ============================================================= LEADERSHIP -->
+<section id="leadership" class="relative border-t border-white/5 py-24 sm:py-32">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+
+    <div class="reveal max-w-3xl">
+      <span class="font-mono text-xs uppercase tracking-[0.28em] text-cyan-400">07 / Leadership</span>
+      <h2 class="mt-4 text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl">Engineering-led from the top.</h2>
+    </div>
+
+    <div class="mt-16 grid grid-cols-1 gap-10 lg:grid-cols-12 lg:gap-14">
+
+      <!-- Portrait card -->
+      <div class="reveal lg:col-span-4">
+        <div class="sticky top-28 overflow-hidden rounded-2xl border border-white/10 bg-ink-900/50">
+          <div class="relative aspect-square overflow-hidden bg-ink-950">
+            <img src="ASSET:anderson.webp"
+              width="560" height="560" loading="lazy" decoding="async"
+              alt="Anderson Alexander Barbosa da Silva, Founder and CEO of Howidely, photographed in a data centre."
+              class="h-full w-full object-cover object-top" />
+            <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink-900/80 via-transparent to-transparent"></div>
+          </div>
+          <div class="p-7">
+            <h3 class="text-xl font-bold text-white">Anderson Alexander Barbosa da Silva, MBA</h3>
+            <p class="mt-1.5 font-mono text-xs uppercase tracking-wider text-cyan-300">Founder &amp; Chief Executive Officer</p>
+
+            <dl class="mt-6 space-y-3 border-t border-white/5 pt-6 text-sm">
+              <div class="flex justify-between gap-4">
+                <dt class="text-muted">Experience</dt><dd class="font-mono text-slate-200">20+ yrs</dd>
+              </div>
+              <div class="flex justify-between gap-4">
+                <dt class="text-muted">Focus</dt><dd class="font-mono text-slate-200">HW/SW Integration</dd>
+              </div>
+              <div class="flex justify-between gap-4">
+                <dt class="text-muted">Languages</dt><dd class="font-mono text-slate-200">Multilingual</dd>
+              </div>
+            </dl>
+
+            <div class="mt-6 flex flex-wrap gap-2">
+              <span class="rounded-md bg-white/5 px-2.5 py-1 font-mono text-[11px] text-slate-400">Dejero</span>
+              <span class="rounded-md bg-white/5 px-2.5 py-1 font-mono text-[11px] text-slate-400">Teledyne FLIR</span>
+              <span class="rounded-md bg-white/5 px-2.5 py-1 font-mono text-[11px] text-slate-400">BlackBerry</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bio -->
+      <div class="reveal lg:col-span-8">
+        <blockquote class="border-l-2 border-cyan-400/60 pl-6">
+          <p class="text-xl font-medium leading-relaxed text-white sm:text-2xl">
+            "The teams we serve don't get a maintenance window. That constraint should shape every
+            design decision — from the connector we choose to the way a status page reads at 3 a.m."
+          </p>
+          <footer class="mt-4 font-mono text-xs uppercase tracking-wider text-muted">— Anderson A. B. da Silva, Founder &amp; CEO</footer>
+        </blockquote>
+
+        <div class="mt-10 space-y-6 text-base leading-relaxed text-slate-400">
+          <p>
+            Anderson is a multilingual engineering executive with more than two decades spanning
+            telecommunications, unmanned aerial systems, mission-critical connectivity, Linux and
+            Python automation, and hardware validation. He founded Howidely in April 2020 to close
+            a gap he had seen repeatedly from the inside: hardware teams and software teams solving
+            adjacent halves of the same problem, with the operator left to bridge the difference.
+          </p>
+          <p>
+            His background includes senior engineering leadership at
+            <span class="text-slate-200">Dejero</span>, where resilient bonded connectivity for
+            broadcast and public safety is the core product;
+            <span class="text-slate-200">Teledyne FLIR</span>, working across sensing and unmanned
+            platforms; and <span class="text-slate-200">BlackBerry</span>, in secure enterprise
+            systems. That path — carrier-grade transport, airborne sensing, and hardened endpoint
+            security — maps directly onto what public safety agencies now need in a single stack.
+          </p>
+          <p>
+            He holds an MBA alongside his engineering practice, and leads Howidely engagements
+            personally from architecture through field commissioning.
+          </p>
+        </div>
+
+        <!-- Expertise bars -->
+        <div class="mt-12 grid grid-cols-1 gap-x-10 gap-y-6 sm:grid-cols-2">
+          <div>
+            <div class="mb-2 flex items-baseline justify-between">
+              <span class="text-sm font-medium text-slate-200">Mission-Critical Connectivity</span>
+              <span class="font-mono text-[11px] text-cyan-400">Expert</span>
+            </div>
+            <div class="h-1 overflow-hidden rounded-full bg-white/10"><div class="skill-bar h-full rounded-full bg-gradient-to-r from-cyan-400 to-emerald-400" data-width="95%" style="width:0"></div></div>
+          </div>
+          <div>
+            <div class="mb-2 flex items-baseline justify-between">
+              <span class="text-sm font-medium text-slate-200">Hardware Validation</span>
+              <span class="font-mono text-[11px] text-cyan-400">Expert</span>
+            </div>
+            <div class="h-1 overflow-hidden rounded-full bg-white/10"><div class="skill-bar h-full rounded-full bg-gradient-to-r from-cyan-400 to-emerald-400" data-width="92%" style="width:0"></div></div>
+          </div>
+          <div>
+            <div class="mb-2 flex items-baseline justify-between">
+              <span class="text-sm font-medium text-slate-200">Linux / Python Automation</span>
+              <span class="font-mono text-[11px] text-cyan-400">Advanced</span>
+            </div>
+            <div class="h-1 overflow-hidden rounded-full bg-white/10"><div class="skill-bar h-full rounded-full bg-gradient-to-r from-cyan-400 to-emerald-400" data-width="88%" style="width:0"></div></div>
+          </div>
+          <div>
+            <div class="mb-2 flex items-baseline justify-between">
+              <span class="text-sm font-medium text-slate-200">UAV &amp; Unmanned Systems</span>
+              <span class="font-mono text-[11px] text-cyan-400">Advanced</span>
+            </div>
+            <div class="h-1 overflow-hidden rounded-full bg-white/10"><div class="skill-bar h-full rounded-full bg-gradient-to-r from-cyan-400 to-emerald-400" data-width="85%" style="width:0"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= CONTACT -->
+<section id="contact" class="relative border-t border-white/5 bg-ink-900/30 py-24 sm:py-32">
+  <div class="tactical-grid radial-fade absolute inset-0 opacity-40" aria-hidden="true"></div>
+
+  <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="grid grid-cols-1 gap-14 lg:grid-cols-12">
+
+      <div class="reveal lg:col-span-5">
+        <span class="font-mono text-xs uppercase tracking-[0.28em] text-emerald-400">08 / Contact</span>
+        <h2 class="mt-4 text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl">Start a conversation.</h2>
+        <p class="mt-6 text-lg leading-relaxed text-slate-400">
+          Tell us what has to keep working. We'll tell you honestly whether we're the right team for it.
+        </p>
+
+        <dl class="mt-10 space-y-6">
+          <div class="flex gap-4">
+            <dt class="mt-0.5 shrink-0 text-cyan-400" aria-label="Email">
+              <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0l-9.75 6.5-9.75-6.5"/></svg>
+            </dt>
+            <dd>
+              <div class="text-sm text-muted">General &amp; programs</div>
+              <a href="mailto:info@howidely.com" class="font-mono text-sm text-slate-200 transition hover:text-cyan-300">info@howidely.com</a>
+            </dd>
+          </div>
+          <div class="flex gap-4">
+            <dt class="mt-0.5 shrink-0 text-cyan-400" aria-label="Response time">
+              <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path stroke-linecap="round" d="M12 7v5l3 2"/></svg>
+            </dt>
+            <dd>
+              <div class="text-sm text-muted">Typical response</div>
+              <div class="font-mono text-sm text-slate-200">Within 1 business day</div>
+            </dd>
+          </div>
+          <div class="flex gap-4">
+            <dt class="mt-0.5 shrink-0 text-cyan-400" aria-label="Engagement model">
+              <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </dt>
+            <dd>
+              <div class="text-sm text-muted">Engagement models</div>
+              <div class="font-mono text-sm text-slate-200">Project · Retainer · Embedded</div>
+            </dd>
+          </div>
+        </dl>
+      </div>
+
+      <div class="reveal lg:col-span-7">
+        <form id="contact-form" novalidate class="rounded-2xl border border-white/10 bg-ink-950/70 p-7 backdrop-blur sm:p-9">
+          <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+            <div>
+              <label for="cf-name" class="mb-2 block font-mono text-[11px] uppercase tracking-wider text-slate-400">Name *</label>
+              <input id="cf-name" name="name" type="text" required autocomplete="name" aria-describedby="cf-name-err"
+                class="w-full rounded-lg border border-white/10 bg-ink-900 px-4 py-3 text-sm text-white placeholder-slate-400 outline-none transition focus:border-cyan-400/60 focus:ring-2 focus:ring-cyan-400" placeholder="Jane Doe" />
+              <p id="cf-name-err" role="alert" class="mt-1.5 hidden font-mono text-[11px] text-rose-400" data-error-for="cf-name">Please enter your name.</p>
+            </div>
+            <div>
+              <label for="cf-email" class="mb-2 block font-mono text-[11px] uppercase tracking-wider text-slate-400">Email *</label>
+              <input id="cf-email" name="email" type="email" required autocomplete="email" aria-describedby="cf-email-err"
+                class="w-full rounded-lg border border-white/10 bg-ink-900 px-4 py-3 text-sm text-white placeholder-slate-400 outline-none transition focus:border-cyan-400/60 focus:ring-2 focus:ring-cyan-400" placeholder="jane@agency.gov" />
+              <p id="cf-email-err" role="alert" class="mt-1.5 hidden font-mono text-[11px] text-rose-400" data-error-for="cf-email">Enter a valid email address.</p>
+            </div>
+            <div>
+              <label for="cf-org" class="mb-2 block font-mono text-[11px] uppercase tracking-wider text-slate-400">Organization</label>
+              <input id="cf-org" name="org" type="text" autocomplete="organization"
+                class="w-full rounded-lg border border-white/10 bg-ink-900 px-4 py-3 text-sm text-white placeholder-slate-400 outline-none transition focus:border-cyan-400/60 focus:ring-2 focus:ring-cyan-400" placeholder="Agency or company" />
+            </div>
+            <div>
+              <label for="cf-topic" class="mb-2 block font-mono text-[11px] uppercase tracking-wider text-slate-400">Area of interest</label>
+              <select id="cf-topic" name="topic"
+                class="w-full rounded-lg border border-white/10 bg-ink-900 px-4 py-3 text-sm text-white outline-none transition focus:border-cyan-400/60 focus:ring-2 focus:ring-cyan-400">
+                <option>TAK / Situational Awareness</option>
+                <option>Mission-Critical Connectivity</option>
+                <option>Hardware Validation</option>
+                <option>UAV &amp; Unmanned Systems</option>
+                <option>Automation &amp; Tooling</option>
+                <option>Something else</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="mt-6">
+            <label for="cf-msg" class="mb-2 block font-mono text-[11px] uppercase tracking-wider text-slate-400">Mission brief *</label>
+            <textarea id="cf-msg" name="message" rows="5" required aria-describedby="cf-msg-err"
+              class="w-full resize-y rounded-lg border border-white/10 bg-ink-900 px-4 py-3 text-sm text-white placeholder-slate-400 outline-none transition focus:border-cyan-400/60 focus:ring-2 focus:ring-cyan-400"
+              placeholder="What system needs to stay up, and what's in the way?"></textarea>
+            <p id="cf-msg-err" role="alert" class="mt-1.5 hidden font-mono text-[11px] text-rose-400" data-error-for="cf-msg">Please add a short description.</p>
+          </div>
+
+          <div class="mt-8 flex flex-wrap items-center gap-4">
+            <button type="submit" class="inline-flex items-center gap-2 rounded-xl bg-cyan-400 px-7 py-3.5 text-sm font-semibold text-ink-950 transition-all hover:-translate-y-0.5 hover:bg-cyan-300 hover:shadow-lg hover:shadow-cyan-400/25">
+              Transmit Request
+              <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12l13-7-5 7 5 7-13-7z"/></svg>
+            </button>
+            <p class="font-mono text-[11px] text-muted">Opens your email client, addressed to info@howidely.com.</p>
+          </div>
+
+          <p id="cf-success" class="mt-6 hidden rounded-xl border border-emerald-400/30 bg-emerald-400/5 px-4 py-3 font-mono text-xs leading-relaxed text-emerald-300" role="status">
+            ✓ Your email client should now be open with the message ready to send to
+            <a href="mailto:info@howidely.com" class="underline hover:text-emerald-200">info@howidely.com</a>.
+            If nothing happened, email us directly at that address.
+          </p>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ============================================================= FOOTER -->
+<footer class="border-t border-white/5 bg-ink-950">
+  <div class="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
+    <div class="flex flex-col items-start justify-between gap-10 md:flex-row">
+
+      <div class="max-w-sm">
+        <div class="flex items-center gap-3">
+          <svg viewBox="250 105 500 395" class="h-7 w-9 shrink-0 text-white" aria-hidden="true"><use href="#hw-mark"/></svg>
+          <span class="text-base font-bold uppercase tracking-[0.32em] text-white">Howidely</span>
+        </div>
+        <p class="mt-5 text-sm leading-relaxed text-muted">
+          High-tech engineering bridging hardware and software for Government, Public Safety and
+          First Responders. Founded April 2020.
+        </p>
+      </div>
+
+      <nav class="grid grid-cols-2 gap-x-14 gap-y-3 sm:grid-cols-3" aria-label="Footer">
+        <a href="#about"      class="text-sm text-slate-400 transition hover:text-cyan-300">About</a>
+        <a href="#history"    class="text-sm text-slate-400 transition hover:text-cyan-300">History</a>
+        <a href="#abox"       class="text-sm text-slate-400 transition hover:text-cyan-300">A-BOX</a>
+        <a href="#roadmap"    class="text-sm text-slate-400 transition hover:text-cyan-300">Coming Soon</a>
+        <a href="#projects"   class="text-sm text-slate-400 transition hover:text-cyan-300">Projects</a>
+        <a href="#tak"        class="text-sm text-slate-400 transition hover:text-cyan-300">TAK Server UI</a>
+        <a href="#leadership" class="text-sm text-slate-400 transition hover:text-cyan-300">Leadership</a>
+        <a href="#contact"    class="text-sm text-slate-400 transition hover:text-cyan-300">Contact</a>
+      </nav>
+    </div>
+
+    <div class="mt-12 flex flex-col items-center justify-between gap-4 border-t border-white/5 pt-7 sm:flex-row">
+      <p class="font-mono text-[11px] uppercase tracking-wider text-muted">© <span id="year">2026</span> Howidely. All rights reserved.</p>
+      <p class="font-mono text-[11px] uppercase tracking-wider text-muted">Engineered for the mission.</p>
+    </div>
+  </div>
+</footer>
+
+<!-- ============================================================= SCRIPTS -->
+<!--BUILD:APPJS-->
+</body>
+</html>

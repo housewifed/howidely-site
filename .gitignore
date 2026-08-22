@@ -1,0 +1,15 @@
+# dependencies
+node_modules/
+
+# generated build artifacts (produced by `npm run build` / CI)
+.tailwind.build.css
+dist/
+
+# internal — intentionally NOT published in this public repo
+CLAUDE.md
+docs/
+assets/source/
+
+# os / misc
+.DS_Store
+*.log
