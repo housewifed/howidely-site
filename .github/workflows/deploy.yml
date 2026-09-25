@@ -26,6 +26,10 @@ jobs:
         with:
           node-version: "20"
       - run: npm ci
+      # The map providers are third parties that can go key-only without
+      # warning, and a watermarked tile still returns HTTP 200 - so this looks
+      # at the bytes rather than the status code. See scripts/check-tiles.mjs.
+      - run: npm run check:tiles
       - run: npm run build
       # Custom domain for GitHub Pages. Must live in the published artifact or
       # it gets wiped on the next Actions deploy.

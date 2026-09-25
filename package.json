@@ -6,7 +6,8 @@
   "scripts": {
     "build": "node scripts/build.mjs",
     "watch": "node scripts/build.mjs --watch",
-    "serve": "node -e \"import('node:http').then(({default:h})=>import('node:fs').then(({readFileSync})=>h.createServer((q,s)=>{s.setHeader('content-type','text/html');s.end(readFileSync('dist/index.html'))}).listen(4173,()=>console.log('http://localhost:4173'))))\""
+    "serve": "node -e \"import('node:http').then(({default:h})=>import('node:fs').then(({readFileSync})=>h.createServer((q,s)=>{s.setHeader('content-type','text/html');s.end(readFileSync('dist/index.html'))}).listen(4173,()=>console.log('http://localhost:4173'))))\"",
+    "check:tiles": "node scripts/check-tiles.mjs"
   },
   "devDependencies": {
     "tailwindcss": "^3.4.19"

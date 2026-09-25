@@ -39,7 +39,7 @@ several of them are non-obvious and were found the hard way.
 ## Third-party services
 
 - **Fonts** — Google Fonts (Inter, JetBrains Mono)
-- **Map tiles** — CARTO dark basemap, OpenStreetMap data
+- **Map tiles** — Esri Dark Gray Canvas (keyless), OpenStreetMap data
 - **Satellite imagery** — Esri World Imagery
 
 All keyless. Attribution is rendered in the map footers; keep it there.

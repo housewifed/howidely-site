@@ -214,7 +214,17 @@
   ];
   var METRO = pick(US_METROS);
 
-  var TILE_BASE = 'https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png';
+  /* Esri's dark canvas, not CARTO's. CARTO began requiring an API key for its
+     basemaps and now answers every request with HTTP 200 and a 2,513-byte
+     "API KEY REQUIRED" watermark - the same bytes for every tile on earth. A
+     watermark is not an error, so `img.onerror` never fired and the fallback
+     grid never showed: the map simply read as broken. Esri is keyless, is
+     already the source of the satellite imagery below, and its Dark Gray
+     Canvas is the same cartography this design was built around.
+
+     Note the {z}/{y}/{x} order, which is Esri's; tileLayer() substitutes each
+     placeholder by name, so the order in the template does not matter. */
+  var TILE_BASE = 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}';
   var TILE_SAT  = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
 
   function lon2px(lon, z) { return (lon + 180) / 360 * Math.pow(2, z) * 256; }
