@@ -196,6 +196,7 @@
       <li><a href="#roadmap"    class="nav-link relative -my-2 whitespace-nowrap py-2 text-[13px] font-medium text-slate-300 transition-colors hover:text-white xl:text-sm">Coming Soon</a></li>
       <li><a href="#projects"   class="nav-link relative -my-2 whitespace-nowrap py-2 text-[13px] font-medium text-slate-300 transition-colors hover:text-white xl:text-sm">Projects</a></li>
       <li><a href="#tak"        class="nav-link relative -my-2 whitespace-nowrap py-2 text-[13px] font-medium text-slate-300 transition-colors hover:text-white xl:text-sm">TAK Server UI</a></li>
+      <li><a href="/fleet/"     class="nav-link relative -my-2 whitespace-nowrap py-2 text-[13px] font-medium text-slate-300 transition-colors hover:text-white xl:text-sm">Fleet</a></li>
       <li><a href="#leadership" class="nav-link relative -my-2 whitespace-nowrap py-2 text-[13px] font-medium text-slate-300 transition-colors hover:text-white xl:text-sm">Leadership</a></li>
       <li><a href="#contact"    class="nav-link relative -my-2 whitespace-nowrap py-2 text-[13px] font-medium text-slate-300 transition-colors hover:text-white xl:text-sm">Contact</a></li>
     </ul>
@@ -227,6 +228,7 @@
       <li><a href="#roadmap"    class="block rounded-lg px-3 py-2.5 text-sm font-medium text-slate-200 hover:bg-white/5 hover:text-cyan-300">Coming Soon</a></li>
       <li><a href="#projects"   class="block rounded-lg px-3 py-2.5 text-sm font-medium text-slate-200 hover:bg-white/5 hover:text-cyan-300">Projects</a></li>
       <li><a href="#tak"        class="block rounded-lg px-3 py-2.5 text-sm font-medium text-slate-200 hover:bg-white/5 hover:text-cyan-300">TAK Server UI</a></li>
+      <li><a href="/fleet/"     class="block rounded-lg px-3 py-2.5 text-sm font-medium text-slate-200 hover:bg-white/5 hover:text-cyan-300">Fleet</a></li>
       <li><a href="#leadership" class="block rounded-lg px-3 py-2.5 text-sm font-medium text-slate-200 hover:bg-white/5 hover:text-cyan-300">Leadership</a></li>
       <li><a href="#contact"    class="block rounded-lg px-3 py-2.5 text-sm font-medium text-slate-200 hover:bg-white/5 hover:text-cyan-300">Contact</a></li>
       <li class="pt-2"><a href="#contact" class="block rounded-lg bg-cyan-400 px-3 py-2.5 text-center text-sm font-semibold text-ink-950">Request Briefing</a></li>
@@ -711,7 +713,7 @@
     <div class="reveal max-w-4xl">
       <div class="flex flex-wrap items-center gap-3">
         <span class="font-mono text-xs uppercase tracking-[0.28em] text-emerald-400">04 / Flagship Product</span>
-        <span class="rounded-md bg-emerald-400/10 px-2.5 py-1 font-mono text-[10px] uppercase tracking-widest text-emerald-300 ring-1 ring-emerald-400/25">In active development</span>
+        <span class="rounded-md bg-emerald-400/10 px-2.5 py-1 font-mono text-[10px] uppercase tracking-widest text-emerald-300 ring-1 ring-emerald-400/25">Shipping &middot; v1.11</span>
       </div>
       <h2 class="mt-4 text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl">
         Next-Gen <span class="text-gradient">TAK Server Revamp</span>
@@ -719,7 +721,8 @@
       <p class="mt-6 text-lg leading-relaxed text-slate-400">
         A ground-up rebuild of the tactical server experience — the common operating picture your
         teams already trust, delivered through a modern browser interface fast enough to run an
-        incident from. Purpose-built for the agencies that answer the call.
+        incident from. Shipping today as <span class="font-semibold text-white">RTAK Server</span>:
+        one installer, on your own Linux machine, nothing else to set up.
       </p>
 
       <h3 class="mt-9 font-mono text-[11px] uppercase tracking-[0.22em] text-muted">Designed for</h3>
@@ -736,111 +739,115 @@
       </div>
     </div>
 
-    <!-- Core features grid -->
+    <!-- Core features grid: every claim here is in the RTAK Server README at v1.11.2 -->
     <h3 class="reveal mt-16 font-mono text-[11px] uppercase tracking-[0.22em] text-muted">Core capabilities</h3>
     <div class="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
 
       <article class="feat-card group">
-        <div class="feat-num">01</div>
+        <div class="feat-num" aria-hidden="true">01</div>
         <span class="feat-icon text-cyan-300 ring-cyan-400/20 bg-cyan-400/10 group-hover:bg-cyan-400/20">
           <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h12A2.25 2.25 0 0120.25 6v8.25A2.25 2.25 0 0118 16.5H6a2.25 2.25 0 01-2.25-2.25V6zM8.25 20.25h7.5M12 16.5v3.75"/><path stroke-linecap="round" d="M7.5 12.75l2.25-2.5 2.25 2 2.25-3.5 2.25 4"/></svg>
         </span>
-        <h4 class="feat-title">Redesigned Situational Awareness Dashboard</h4>
+        <h4 class="feat-title">Situational Awareness Dashboard</h4>
         <p class="feat-body">
-          A modern, ultra-fast tactical UI built for legibility under stress — dense where it needs
-          to be, quiet everywhere else, and readable at a glance from across a command vehicle.
+          A modern, fast tactical UI built for legibility under stress. Click a unit and its speed,
+          heading, coordinates with MGRS, battery and live video fill a side panel. Admins get a
+          server dashboard: CPU, disk, memory, uptime, sessions.
         </p>
         <div class="feat-badges">
-          <span class="spec-badge">Ultra-fast UI</span>
-          <span class="spec-badge">Dark tactical</span>
-          <span class="spec-badge">Glanceable</span>
+          <span class="spec-badge">Details panel</span>
+          <span class="spec-badge">MGRS</span>
+          <span class="spec-badge">Server health</span>
         </div>
       </article>
 
       <article class="feat-card group">
-        <div class="feat-num">02</div>
+        <div class="feat-num" aria-hidden="true">02</div>
         <span class="feat-icon text-emerald-300 ring-emerald-400/20 bg-emerald-400/10 group-hover:bg-emerald-400/20">
           <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 6.75L3.75 4.5v12.75L9 19.5m0-12.75v12.75m0-12.75l6-2.25m-6 15l6-2.25m0 0l5.25 2.25V6l-5.25-2.25m0 15V3.75"/></svg>
         </span>
         <h4 class="feat-title">Interactive Geospatial Mapping</h4>
         <p class="feat-body">
-          Street and satellite basemaps with live device populating — units, cameras and aircraft
-          appear and move on the map as they report, with no manual refresh and no stale positions.
-          No mapping subscription required; Google imagery is optional where you supply a key.
+          Street or satellite basemaps with units appearing and moving as they report. Positions
+          snap to the road they are on, with OpenStreetMap roads drawn over the imagery. No mapping
+          subscription required; Google imagery is optional where you supply a key.
         </p>
         <div class="feat-badges">
-          <span class="spec-badge">OpenStreetMap</span>
+          <span class="spec-badge">Street &middot; Satellite</span>
+          <span class="spec-badge">Snap to roads</span>
           <span class="spec-badge">Live populating</span>
-          <span class="spec-badge">Auto-refresh</span>
         </div>
       </article>
 
       <article class="feat-card group">
-        <div class="feat-num">03</div>
+        <div class="feat-num" aria-hidden="true">03</div>
         <span class="feat-icon text-cyan-300 ring-cyan-400/20 bg-cyan-400/10 group-hover:bg-cyan-400/20">
           <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9A2.25 2.25 0 0013.5 5.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z"/></svg>
         </span>
-        <h4 class="feat-title">In-Map Live Video Streaming</h4>
+        <h4 class="feat-title">Live Video on the Map</h4>
         <p class="feat-body">
-          Watch active feeds directly pinned to their map location. Click a unit and its video opens
-          in place — no second application, no hunting for the right stream URL.
+          Situational live video: select units on the map or in the roster and a small live video
+          opens over each one &mdash; several at once, pushed apart when units are close, nothing in
+          the way. Click one to focus it.
         </p>
         <div class="feat-badges">
-          <span class="spec-badge">Pinned to location</span>
-          <span class="spec-badge">Click-to-view</span>
-          <span class="spec-badge">Low latency</span>
+          <span class="spec-badge">Several at once</span>
+          <span class="spec-badge">Pinned to units</span>
+          <span class="spec-badge">Click to focus</span>
         </div>
       </article>
 
       <article class="feat-card group">
-        <div class="feat-num">04</div>
+        <div class="feat-num" aria-hidden="true">04</div>
         <span class="feat-icon text-emerald-300 ring-emerald-400/20 bg-emerald-400/10 group-hover:bg-emerald-400/20">
           <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 5.25h6.75v6H3.75v-6zm9.75 0h6.75v6H13.5v-6zM3.75 12.75h6.75v6H3.75v-6zm9.75 0h6.75v6H13.5v-6z"/></svg>
         </span>
-        <h4 class="feat-title">Integrated Situational Awareness Room</h4>
+        <h4 class="feat-title">Camera Wall &amp; Recordings</h4>
         <p class="feat-body">
-          A multi-feed tactical command center view — every active camera, drone and body-worn
-          stream on one wall, sized for a briefing room display or a supervisor's second monitor.
+          Every feed on one camera grid, and recordings that play back whether or not anything is
+          streaming. IP cameras are placed by GPS coordinates, a street address or a street corner,
+          and play even behind port forwarding.
         </p>
         <div class="feat-badges">
-          <span class="spec-badge">Multi-feed</span>
-          <span class="spec-badge">Command wall</span>
-          <span class="spec-badge">Briefing-ready</span>
+          <span class="spec-badge">Camera grid</span>
+          <span class="spec-badge">Recordings</span>
+          <span class="spec-badge">IP cameras</span>
         </div>
       </article>
 
       <article class="feat-card group">
-        <div class="feat-num">05</div>
+        <div class="feat-num" aria-hidden="true">05</div>
         <span class="feat-icon text-cyan-300 ring-cyan-400/20 bg-cyan-400/10 group-hover:bg-cyan-400/20">
-          <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 4.5h5.25v5.25H3.75V4.5zm11.25 0h5.25v5.25H15V4.5zM3.75 14.25H9v5.25H3.75v-5.25zM15 14.25h2.25m3 0H21m-6 3h3m3 0v2.25M15 19.5h.01"/></svg>
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2.25M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
         </span>
-        <h4 class="feat-title">Zero-Trust Device Onboarding &amp; Enrollment</h4>
+        <h4 class="feat-title">Track Recording &amp; Playback</h4>
         <p class="feat-body">
-          Secure, verified registration for every endpoint class — IP cameras, drones and UAVs,
-          Android handsets via ATAK and iOS handsets via iTAK. Nothing joins the picture unproven.
+          Record chosen units or all of them, then replay a recording or any time range at the
+          speed you choose &mdash; a distinct trail colour per unit, following one or keeping all
+          of them in frame.
         </p>
         <div class="feat-badges">
-          <span class="spec-badge">IP Cameras</span>
-          <span class="spec-badge">Drones / UAV</span>
-          <span class="spec-badge">Android · ATAK</span>
-          <span class="spec-badge">iOS · iTAK</span>
+          <span class="spec-badge">Record</span>
+          <span class="spec-badge">Replay any range</span>
+          <span class="spec-badge">Per-unit trails</span>
         </div>
       </article>
 
       <article class="feat-card group">
-        <div class="feat-num">06</div>
+        <div class="feat-num" aria-hidden="true">06</div>
         <span class="feat-icon text-emerald-300 ring-emerald-400/20 bg-emerald-400/10 group-hover:bg-emerald-400/20">
-          <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244"/></svg>
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg>
         </span>
-        <h4 class="feat-title">Native Compatibility</h4>
+        <h4 class="feat-title">Secure by Default</h4>
         <p class="feat-body">
-          100% interoperability with existing ATAK and iTAK ecosystems. Crews keep the app they
-          trained on, keep their muscle memory, and gain a command-side view they never had.
+          Zero-trust enrollment for every endpoint: one QR scan from ATAK or iTAK, certificates
+          over mutual TLS. Every video stream needs a credential to watch, and HTTPS is one setting
+          away. Crews keep the TAK app they trained on.
         </p>
         <div class="feat-badges">
-          <span class="spec-badge">ATAK</span>
-          <span class="spec-badge">iTAK</span>
-          <span class="spec-badge">100% interop</span>
+          <span class="spec-badge">Zero-trust</span>
+          <span class="spec-badge">100% ATAK &middot; iTAK</span>
+          <span class="spec-badge">Optional HTTPS</span>
         </div>
       </article>
 
@@ -867,7 +874,9 @@
         <span class="rounded-full bg-white/5 px-2.5 py-1 font-mono text-[10px] uppercase tracking-wider text-slate-400" id="tak-devcount">3 devices</span>
         <span class="hidden rounded-full bg-white/5 px-2.5 py-1 font-mono text-[10px] uppercase tracking-wider text-cyan-300 sm:inline" id="tak-location">—</span>
 
-        <div class="ml-auto flex flex-wrap items-center gap-1.5" id="tak-tabs" role="tablist" aria-label="TAK Revamp panels">
+        <button type="button" id="tak-sitvid" aria-pressed="false"
+          class="ml-auto rounded-lg bg-white/5 px-2.5 py-1.5 font-mono text-[11px] text-slate-300 transition hover:bg-white/10">&#128249; Situational video</button>
+        <div class="flex flex-wrap items-center gap-1.5" id="tak-tabs" role="tablist" aria-label="TAK Revamp panels">
           <button type="button" class="tak-tab" data-panel="enroll"   role="tab">&#10133; Enroll device</button>
           <button type="button" class="tak-tab" data-panel="users"    role="tab">&#128101; Users</button>
           <button type="button" class="tak-tab" data-panel="chat"     role="tab">&#128172; Chat</button>
@@ -1038,10 +1047,12 @@
       </div>
       <h2 class="mt-4 text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl">To Be Released Soon</h2>
       <p class="mt-6 text-lg leading-relaxed text-slate-400">
-        The next release turns the map into a command center. Every camera, drone and handheld on one
-        wall, with a device inspector, live telemetry and zero-trust onboarding built in. The
-        simulation below is a working preview of that interface &mdash; explore it, but note that it
-        is not yet part of the shipping build.
+        The camera wall and live video over every selected unit already ship
+        (<a href="#tak" class="text-cyan-300 underline decoration-cyan-400/40 underline-offset-2 hover:text-cyan-200">see RTAK Server</a>).
+        The next release turns the map into a full command center: a device inspector with live
+        telemetry, class filters, and a guided enrollment flow for every node. The simulation below
+        previews that interface &mdash; explore it, but note that those parts are not yet in the
+        shipping build.
       </p>
     </div>
 
@@ -1052,7 +1063,7 @@
       </svg>
       <p class="text-sm text-violet-100">
         <span class="font-semibold">Preview only.</span>
-        <span class="text-violet-200">Not available in the current release. Roadmap features and timing are subject to change.</span>
+        <span class="text-violet-200">The inspector, telemetry and enrollment flow are not in the current release. Roadmap features and timing are subject to change.</span>
       </p>
       <a href="#contact" class="ml-auto shrink-0 rounded-lg border border-violet-400/40 px-4 py-2 text-xs font-semibold text-violet-100 transition hover:bg-violet-400/15">
         Ask about early access
@@ -1264,6 +1275,24 @@
         The Situational Awareness Room preview requires JavaScript. The rest of this page works without it.
       </p>
     </noscript>
+
+    <!-- Teaser for the fleet page. Coming soon: nothing here claims it exists. -->
+    <a href="/fleet/" class="reveal group mt-14 flex flex-col gap-5 rounded-2xl border border-amber-400/25 bg-ink-900 p-6 transition hover:border-amber-400/50 sm:flex-row sm:items-center sm:p-8">
+      <span class="feat-icon shrink-0 bg-amber-400/10 text-amber-300">
+        <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12"/></svg>
+      </span>
+      <span class="flex-1">
+        <span class="flex flex-wrap items-center gap-3">
+          <span class="text-xl font-bold text-white">RTAK Fleet</span>
+          <span class="rounded-md bg-amber-400/10 px-2.5 py-1 font-mono text-[10px] uppercase tracking-widest text-amber-200 ring-1 ring-amber-400/30">Coming soon</span>
+        </span>
+        <span class="mt-2 block text-sm leading-relaxed text-slate-400">
+          The same command picture for transport companies: an in-vehicle unit that acts the moment
+          a truck leaves its route or stops too long, and an operator who decides what happens next.
+        </span>
+      </span>
+      <span class="shrink-0 font-mono text-xs font-semibold uppercase tracking-wider text-amber-300 group-hover:text-amber-200">See the plan &rarr;</span>
+    </a>
   </div>
 </section>
 
@@ -1612,6 +1641,7 @@
         <a href="#roadmap"    class="text-sm text-slate-400 transition hover:text-cyan-300">Coming Soon</a>
         <a href="#projects"   class="text-sm text-slate-400 transition hover:text-cyan-300">Projects</a>
         <a href="#tak"        class="text-sm text-slate-400 transition hover:text-cyan-300">TAK Server UI</a>
+        <a href="/fleet/"     class="text-sm text-slate-400 transition hover:text-cyan-300">Fleet</a>
         <a href="#leadership" class="text-sm text-slate-400 transition hover:text-cyan-300">Leadership</a>
         <a href="#contact"    class="text-sm text-slate-400 transition hover:text-cyan-300">Contact</a>
       </nav>

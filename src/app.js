@@ -512,6 +512,141 @@
   /* Add IP camera -> opens cameras panel */
   document.getElementById('tak-addcam').addEventListener('click', function () { openPanel('cameras'); });
 
+  /* Situational video - mirrors RTAK 1.11: with the mode on, every unit gets
+     a small live feed anchored above its pin, pushed apart sideways when
+     units are close and never below the unit it belongs to; click one to
+     focus it at twice the size.
+
+     Built once, on the first toggle (no imagery is requested before that).
+     Thereafter only transforms change: the callout is laid out at its
+     focused size, 320x180, and drawn at half scale - so focusing is a scale,
+     not a width change, and drift moves it with translate3d like the pins.
+     The leader line is a fixed 100px element scaled to length. */
+  var SIT = { w: 320, h: 180, small: 0.5, gap: 14, pad: 8 };
+  var sitBtn = document.getElementById('tak-sitvid');
+  var sitOn = false, sitBuilt = false, sitFocus = null;
+
+  function buildCallouts() {
+    sitBuilt = true;
+    DEVICES.forEach(function (d) {
+      var line = document.createElement('span');
+      line.className = 'pointer-events-none absolute left-0 top-0 hidden w-px bg-cyan-300/70';
+      line.style.height = '100px';
+      line.style.transformOrigin = '0 0';
+      line.setAttribute('aria-hidden', 'true');
+
+      var c = document.createElement('button');
+      c.type = 'button';
+      c.className = 'absolute left-0 top-0 z-[6] hidden overflow-hidden rounded-xl border-2 border-cyan-400/60 bg-black shadow-2xl shadow-black/70';
+      c.style.width = SIT.w + 'px';
+      c.style.height = SIT.h + 'px';
+      c.style.transformOrigin = '0 0';
+      c.setAttribute('aria-label', 'Live video from ' + d.name + ' (simulated). Activate to focus');
+      c.setAttribute('aria-pressed', 'false');
+      var feed = document.createElement('div');
+      feed.className = 'absolute inset-0';
+      c.appendChild(feed);
+      var tag = document.createElement('span');
+      tag.className = 'absolute bottom-0 inset-x-0 bg-ink-950/90 px-3 py-1.5 text-left font-mono text-[20px] font-semibold text-white';
+      tag.textContent = d.name;
+      c.appendChild(tag);
+      var live = document.createElement('span');
+      live.className = 'absolute left-2.5 top-2.5 rounded bg-emerald-700 px-2 py-0.5 font-mono text-[16px] font-bold text-white';
+      live.textContent = 'LIVE';
+      c.appendChild(live);
+      c.addEventListener('click', function () {
+        sitFocus = (sitFocus === d.name) ? null : d.name;
+        DEVICES.forEach(function (o) { o.callout.setAttribute('aria-pressed', String(sitFocus === o.name)); });
+        sitLayout(true);
+      });
+
+      takMap.appendChild(line);
+      takMap.appendChild(c);
+      // laid out at full size, so the imagery covers the focused callout too
+      tileLayer(feed, TILE_SAT, d.lat, d.lon, 18, '1', 'sar-feed-pan');
+      d.callout = c; d.leader = line;
+    });
+  }
+
+  /* Boxes above their pins. Each box, focused first then by name, takes the
+     free spot nearest its own anchor: where it wants to be, beside a box
+     already placed, or above one - never below its pin, never off the map,
+     never under the roster. A search, not a push: pushing one box sideways
+     onto a second and back onto the first left it stuck between them. */
+  function sitLayout(quick) {
+    if (!sitOn) return;
+    var W = takMap.clientWidth;
+    var right = W > 640 ? 288 : 0;            // the roster floats over the right edge
+    var maxX = W - right - SIT.pad;
+    var order = DEVICES.slice().sort(function (a, b) {
+      return (b.name === sitFocus) - (a.name === sitFocus) || (a.name < b.name ? -1 : 1);
+    });
+    var boxes = [];
+    function free(x, y, w, h) {
+      if (x < SIT.pad || x + w > maxX || y < SIT.pad) return false;
+      return !boxes.some(function (o) {
+        return x < o.x + o.w + SIT.pad && o.x < x + w + SIT.pad && y < o.y + o.h + SIT.pad && o.y < y + h + SIT.pad;
+      });
+    }
+    order.forEach(function (d) {
+      var k = d.name === sitFocus ? 1 : SIT.small;
+      var w = SIT.w * k, h = SIT.h * k;
+      var a = takGeo.project(d.lat, d.lon);
+      var x0 = Math.max(SIT.pad, Math.min(a.x - w / 2, maxX - w));
+      var y0 = Math.max(SIT.pad, a.y - SIT.gap - h);
+      var xs = [x0], ys = [y0];
+      boxes.forEach(function (o) {
+        xs.push(o.x + o.w + SIT.pad, o.x - w - SIT.pad, o.x);
+        if (o.y - h - SIT.pad < y0) ys.push(o.y - h - SIT.pad);
+      });
+      var best = null;
+      xs.forEach(function (x) {
+        ys.forEach(function (y) {
+          if (!free(x, y, w, h)) return;
+          var cost = Math.abs(x - x0) + 1.5 * (y0 - y);
+          if (!best || cost < best.cost) best = { x: x, y: y, cost: cost };
+        });
+      });
+      if (!best) best = { x: x0, y: y0 };   // nowhere free: stay put rather than vanish
+      boxes.push({ d: d, k: k, w: w, h: h, ax: a.x, ay: a.y, x: best.x, y: best.y });
+    });
+    boxes.forEach(function (b) {
+      var c = b.d.callout, line = b.d.leader;
+      // A change of size is a click and should feel like one; drift glides.
+      // A drift tick landing inside a click's 300ms must not swap in the slow
+      // glide halfway through, or the focus crawls for 2.4s.
+      var now = performance.now();
+      if (quick || b.d.sitK !== b.k) b.d.quickUntil = now + 320;
+      b.d.sitK = b.k;
+      var fast = now < (b.d.quickUntil || 0);
+      var t = reduceMotion ? 'none' : (fast ? 'transform .3s ease' : 'transform 2.4s linear');
+      c.style.transition = t; line.style.transition = t;
+      c.style.zIndex = b.d.name === sitFocus ? '7' : '6';
+      c.style.transform = 'translate3d(' + b.x.toFixed(1) + 'px,' + b.y.toFixed(1) + 'px,0) scale(' + b.k + ')';
+      // leader from the pin to the middle of the callout's bottom edge
+      var ex = b.x + b.w / 2, ey = b.y + b.h;
+      var dx = ex - b.ax, dy = ey - b.ay, len = Math.sqrt(dx * dx + dy * dy);
+      var ang = Math.atan2(dy, dx) * 180 / Math.PI - 90;
+      line.style.transform = 'translate3d(' + b.ax.toFixed(1) + 'px,' + b.ay.toFixed(1) + 'px,0) rotate(' +
+        ang.toFixed(1) + 'deg) scaleY(' + (len / 100).toFixed(3) + ')';
+    });
+  }
+
+  function setSitVideo(on) {
+    sitOn = on;
+    if (on && !sitBuilt) buildCallouts();
+    sitBtn.setAttribute('aria-pressed', String(on));
+    sitBtn.className = 'ml-auto rounded-lg px-2.5 py-1.5 font-mono text-[11px] transition ' +
+      (on ? 'bg-cyan-400 font-semibold text-ink-950' : 'bg-white/5 text-slate-300 hover:bg-white/10');
+    DEVICES.forEach(function (d) {
+      if (!d.callout) return;
+      d.callout.classList.toggle('hidden', !on);
+      d.leader.classList.toggle('hidden', !on);
+    });
+    if (on) sitLayout(true);
+  }
+  sitBtn.addEventListener('click', function () { setSitVideo(!sitOn); });
+
   /* Gentle position drift while visible */
   function driftDevices() {
     DEVICES.forEach(function (d) {
@@ -519,6 +654,7 @@
       d.lon += rand(-0.0012, 0.0012);
       placePin(d.pin, takGeo.project(d.lat, d.lon));
     });
+    sitLayout(false);
   }
 
   renderChat();

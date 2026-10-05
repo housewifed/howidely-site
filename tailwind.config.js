@@ -2,10 +2,11 @@
  *
  *  `content` must include src/app.js — a lot of utility classes are assembled
  *  in JS strings (map pins, status chips, enrollment steps). If you drop it,
- *  those classes get tree-shaken out and elements render unstyled.
+ *  those classes get tree-shaken out and elements render unstyled. The same
+ *  holds for src/fleet.js. One compile serves both pages.
  */
 module.exports = {
-  content: ['./src/index.html', './src/app.js'],
+  content: ['./src/index.html', './src/app.js', './src/fleet.html', './src/fleet.js'],
   theme: {
     extend: {
       fontFamily: {

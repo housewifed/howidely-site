@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>RTAK Fleet — Vehicle Monitoring Where Your Operator Decides | Howidely</title>
+<meta name="description" content="RTAK Fleet (coming soon): an in-vehicle unit that starts the cameras, messages the driver and alerts your operator the moment a truck leaves its route or stops too long. Runs on your own server." />
+<meta name="theme-color" content="#020617" />
+
+<!-- Open Graph -->
+<meta property="og:type" content="website" />
+<meta property="og:title" content="RTAK Fleet — Every truck watched. Every decision yours." />
+<meta property="og:description" content="Coming soon from Howidely: vehicle monitoring with geofencing, live video and operator-confirmed escalation, on your own server." />
+
+<!-- Favicon: inline SVG of the Howidely mark -->
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='250 105 500 395'%3E%3Cg fill='%23ffffff'%3E%3Cpath d='M 311,124 323,131 335,137 346,144 358,151 369,157 380,164 391,171 402,178 412,185 422,193 431,200 440,208 449,215 457,223 465,231 472,239 479,247 486,256 491,265 496,274 501,283 505,293 507,303 509,313 510,324 510,334 509,345 507,356 503,367 499,377 493,387 486,397 478,407 469,416 459,424 448,433 436,441 423,448 409,456 394,462 378,469 361,475 342,480 322,485 301,488 277,486 275,477 292,461 310,451 327,441 342,432 357,424 370,416 383,408 394,400 404,393 413,386 421,379 427,373 433,366 439,360 443,355 446,349 449,344 452,338 453,333 455,328 456,323 456,317 456,311 456,305 455,299 453,292 451,285 448,277 444,270 440,262 436,254 430,245 425,237 418,229 411,220 404,211 396,203 388,194 380,185 371,176 362,167 352,159 342,150 332,141 322,133 311,124 Z'/%3E%3Cpath d='M 689,124 677,131 665,137 654,144 642,151 631,157 620,164 609,171 598,178 588,185 578,193 569,200 560,208 551,215 543,223 535,231 528,239 521,247 514,256 509,265 504,274 499,283 495,293 493,303 491,313 490,324 490,334 491,345 493,356 497,367 501,377 507,387 514,397 522,407 531,416 541,424 552,433 564,441 577,448 591,456 606,462 622,469 639,475 658,480 678,485 699,488 723,486 725,477 708,461 690,451 673,441 658,432 643,424 630,416 617,408 606,400 596,393 587,386 579,379 573,373 567,366 561,360 557,355 554,349 551,344 548,338 547,333 545,328 544,323 544,317 544,311 544,305 545,299 547,292 549,285 552,277 556,270 560,262 564,254 570,245 575,237 582,229 589,220 596,211 604,203 612,194 620,185 629,176 638,167 648,159 658,150 668,141 678,133 689,124 Z'/%3E%3C/g%3E%3C/svg%3E" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+
+
+<!--BUILD:TAILWIND-->
+<style>
+  body { -webkit-font-smoothing: antialiased; }
+
+  /* Tactical grid + vignette backdrop */
+  .tactical-grid {
+    background-image:
+      linear-gradient(to right, rgba(34,211,238,.055) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(34,211,238,.055) 1px, transparent 1px);
+    background-size: 56px 56px;
+  }
+  /* Fade painted as a gradient, not a mask. A mask forces a full-element render
+     surface and these cover whole multi-megapixel sections; a gradient keeps the
+     56px grid on the tiling fast path. This was the dominant scroll-jank cost. */
+  .radial-fade::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(ellipse 80% 60% at 50% 35%, transparent 30%, #020617 100%);
+  }
+
+  .text-gradient {
+    background: linear-gradient(120deg, #ffffff 0%, #a5f3fc 45%, #6ee7b7 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+
+  /* Scroll-reveal */
+  .reveal { opacity: 0; transform: translateY(22px); transition: opacity .7s cubic-bezier(.2,.7,.3,1), transform .7s cubic-bezier(.2,.7,.3,1); will-change: opacity, transform; }
+  .reveal.is-visible { opacity: 1; transform: none; }
+  .reveal.is-done { will-change: auto; }
+
+  /* Custom scrollbars inside panels */
+  .thin-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
+  .thin-scroll::-webkit-scrollbar-track { background: rgba(148,163,184,.06); }
+  .thin-scroll::-webkit-scrollbar-thumb { background: rgba(34,211,238,.28); border-radius: 999px; }
+  .thin-scroll::-webkit-scrollbar-thumb:hover { background: rgba(34,211,238,.45); }
+  .thin-scroll { scrollbar-width: thin; scrollbar-color: rgba(34,211,238,.28) transparent; }
+
+  /* Nav active state */
+  .nav-link.active { color: #67e8f9; }
+  .nav-link.active::after { transform: scaleX(1); }
+  .nav-link::after {
+    content: ''; position: absolute; left: 0; right: 0; bottom: -6px; height: 1px;
+    background: linear-gradient(90deg, #22d3ee, #34d399);
+    transform: scaleX(0); transform-origin: left; transition: transform .3s ease;
+  }
+  .nav-link:hover::after { transform: scaleX(1); }
+
+
+  /* Tactical spec badge */
+  .spec-badge {
+    display: inline-block; padding: .2rem .55rem; border-radius: .3rem;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 10px; line-height: 1.5; text-transform: uppercase; letter-spacing: .06em;
+    color: #94a3b8; background: rgba(148,163,184,.08);
+    box-shadow: inset 0 0 0 1px rgba(148,163,184,.16);
+    transition: color .25s ease, background .25s ease, box-shadow .25s ease;
+  }
+  .group:hover .spec-badge { color: #a5f3fc; background: rgba(34,211,238,.10); box-shadow: inset 0 0 0 1px rgba(34,211,238,.28); }
+
+  /* Corner brackets on hover */
+  .card-corner::before, .card-corner::after {
+    content: ''; position: absolute; width: 14px; height: 14px;
+    border-color: rgba(34,211,238,.55); opacity: 0; transition: opacity .3s ease;
+    pointer-events: none;
+  }
+  .card-corner::before { top: 10px; left: 10px; border-top: 1.5px solid; border-left: 1.5px solid; }
+  .card-corner::after  { bottom: 10px; right: 10px; border-bottom: 1.5px solid; border-right: 1.5px solid; }
+  .card-corner:hover::before, .card-corner:hover::after { opacity: 1; }
+
+  /* Flagship feature card */
+  .feat-card {
+    position: relative; overflow: hidden; border-radius: 1rem; padding: 1.75rem;
+    border: 1px solid rgba(255,255,255,.10); background: rgba(2,6,23,.55);
+    transition: transform .35s cubic-bezier(.2,.7,.3,1), border-color .35s ease, background .35s ease, box-shadow .35s ease;
+  }
+  .feat-card::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none; opacity: 0;
+    background: radial-gradient(ellipse 70% 60% at 50% 0%, rgba(34,211,238,.13), transparent 70%);
+    transition: opacity .35s ease;
+  }
+  .feat-card:hover {
+    transform: translateY(-6px); border-color: rgba(34,211,238,.38); background: rgba(11,17,32,.85);
+    box-shadow: 0 18px 40px -18px rgba(0,0,0,.9), 0 0 0 1px rgba(34,211,238,.10);
+  }
+  .feat-card:hover::after { opacity: 1; }
+  .feat-num {
+    position: absolute; top: 1.1rem; right: 1.25rem;
+    font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; font-weight: 700;
+    color: rgba(148,163,184,.30); transition: color .3s ease;
+  }
+  .feat-card:hover .feat-num { color: rgba(34,211,238,.75); }
+  .feat-icon {
+    position: relative; display: inline-flex; height: 3rem; width: 3rem; align-items: center; justify-content: center;
+    border-radius: .75rem; box-shadow: inset 0 0 0 1px currentColor; transition: background .3s ease, transform .3s ease;
+  }
+  .feat-card:hover .feat-icon { transform: scale(1.06); }
+  .feat-title { position: relative; margin-top: 1.25rem; font-size: 1.0625rem; font-weight: 600; color: #fff; line-height: 1.35; }
+  .feat-body  { position: relative; margin-top: .75rem; font-size: .875rem; line-height: 1.65; color: #94a3b8; }
+  .feat-badges{ position: relative; margin-top: 1.1rem; display: flex; flex-wrap: wrap; gap: .375rem; }
+
+
+  /* Invisible 24x24 minimum hit area (WCAG 2.2 AA 2.5.8) without shifting layout */
+  .hit-target::after { content: ''; position: absolute; inset: -8px; }
+
+  /* Live feed: slow drift over the satellite plate + CRT scanlines */
+  @keyframes feedPan { 0% { transform: scale(1.06) translate(1.2%, -1%); } 100% { transform: scale(1.13) translate(-1.4%, 1.2%); } }
+  .sar-feed-pan { animation: feedPan 26s ease-in-out infinite alternate; will-change: transform; }
+  .sar-scanlines {
+    background: repeating-linear-gradient(to bottom, rgba(0,0,0,0) 0 2px, rgba(0,0,0,.16) 2px 3px);
+    mix-blend-mode: multiply;
+  }
+  @media (prefers-reduced-motion: reduce) { .sar-feed-pan { animation: none; } }
+
+  /* SAR room controls */
+  .sar-chip {
+    padding: .3rem .7rem; border-radius: .375rem;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 10px; text-transform: uppercase; letter-spacing: .07em;
+    color: #778495; background: transparent;
+    box-shadow: inset 0 0 0 1px rgba(148,163,184,.14);
+    transition: all .22s ease; cursor: pointer;
+  }
+  .sar-chip:hover { color: #cbd5e1; background: rgba(255,255,255,.04); }
+  .sar-chip.is-on { color: #67e8f9; background: rgba(34,211,238,.12); box-shadow: inset 0 0 0 1px rgba(34,211,238,.4); }
+
+  .sar-kind {
+    display: flex; align-items: center; gap: .5rem;
+    padding: .7rem .85rem; border-radius: .625rem; text-align: left;
+    font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px;
+    color: #a8b3c2; background: rgba(2,6,23,.6);
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.10);
+    transition: all .22s ease; cursor: pointer;
+  }
+  .sar-kind:hover { color: #e2e8f0; background: rgba(255,255,255,.04); }
+  .sar-kind.is-on { color: #fff; background: rgba(34,211,238,.12); box-shadow: inset 0 0 0 1.5px rgba(34,211,238,.55); }
+
+  html { scroll-padding-top: 88px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
+    .reveal { opacity: 1; transform: none; }
+    html { scroll-behavior: auto !important; }
+  }
+</style>
+</head>
+
+<body class="bg-ink-950 font-sans text-slate-300 antialiased selection:bg-cyan-400/30 selection:text-white">
+
+<svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute">
+  <defs>
+    <g id="hw-mark" fill="currentColor">
+      <path d="M 311.0,124.0 313.7,125.6 316.5,127.1 319.2,128.6 322.0,130.1 324.7,131.6 327.5,133.2 330.2,134.7 332.9,136.2 335.6,137.7 338.3,139.3 341.0,140.8 343.7,142.3 346.4,143.9 349.0,145.4 351.7,146.9 354.3,148.5 356.9,150.0 359.6,151.6 362.2,153.2 364.8,154.7 367.3,156.3 369.9,157.9 372.5,159.4 375.0,161.0 377.6,162.6 380.1,164.2 382.6,165.8 385.1,167.4 387.5,169.0 390.0,170.6 392.4,172.2 394.9,173.8 397.3,175.4 399.7,177.0 402.1,178.7 404.4,180.3 406.8,182.0 409.1,183.6 411.4,185.3 413.7,186.9 416.0,188.6 418.2,190.2 420.5,191.9 422.7,193.6 424.9,195.3 427.1,197.0 429.2,198.7 431.4,200.4 433.5,202.1 435.6,203.8 437.7,205.5 439.8,207.3 441.8,209.0 443.8,210.8 445.8,212.5 447.8,214.3 449.8,216.1 451.7,217.8 453.6,219.6 455.5,221.4 457.4,223.2 459.2,225.0 461.0,226.8 462.8,228.7 464.6,230.5 466.3,232.4 468.0,234.2 469.7,236.1 471.4,238.0 473.0,239.9 474.7,241.8 476.2,243.7 477.8,245.6 479.3,247.5 480.8,249.5 482.3,251.4 483.8,253.4 485.2,255.4 486.6,257.4 487.9,259.4 489.2,261.4 490.5,263.5 491.8,265.5 493.0,267.6 494.2,269.7 495.4,271.8 496.5,273.9 497.6,276.0 498.6,278.1 499.6,280.3 500.6,282.5 501.5,284.7 502.4,286.9 503.3,289.1 504.1,291.4 504.9,293.6 505.6,295.9 506.3,298.2 506.9,300.5 507.5,302.8 508.0,305.2 508.5,307.5 509.0,309.9 509.3,312.3 509.7,314.7 510.0,317.1 510.2,319.5 510.4,321.9 510.5,324.4 510.5,326.8 510.5,329.3 510.5,331.8 510.4,334.2 510.2,336.7 510.0,339.2 509.7,341.7 509.3,344.2 508.9,346.7 508.4,349.1 507.9,351.6 507.3,354.1 506.6,356.6 505.9,359.0 505.1,361.5 504.2,363.9 503.3,366.4 502.4,368.8 501.3,371.2 500.2,373.6 499.1,376.0 497.9,378.4 496.6,380.7 495.3,383.1 493.9,385.4 492.5,387.7 491.0,390.0 489.4,392.3 487.8,394.5 486.1,396.7 484.4,399.0 482.6,401.2 480.8,403.3 478.9,405.5 477.0,407.6 475.0,409.7 473.0,411.8 470.9,413.9 468.7,416.0 466.5,418.0 464.2,420.0 461.9,422.0 459.6,424.0 457.2,426.0 454.7,427.9 452.2,429.9 449.6,431.8 447.0,433.6 444.3,435.5 441.5,437.3 438.8,439.2 435.9,441.0 433.0,442.8 430.1,444.5 427.1,446.3 424.0,448.0 420.9,449.7 417.7,451.4 414.5,453.1 411.2,454.7 407.9,456.3 404.5,457.9 401.0,459.5 397.5,461.1 394.0,462.6 390.3,464.1 386.6,465.6 382.9,467.1 379.1,468.5 375.2,469.9 371.3,471.3 367.3,472.7 363.3,474.0 359.2,475.3 355.0,476.6 350.7,477.8 346.4,479.0 342.1,480.1 337.6,481.3 333.1,482.3 328.5,483.3 323.9,484.3 319.1,485.2 314.3,486.0 309.4,486.7 304.5,487.3 299.4,487.7 294.2,488.0 288.9,488.0 283.3,487.5 277.4,485.8 274.6,476.9 278.4,472.1 282.5,468.5 286.6,465.3 290.8,462.5 295.0,459.8 299.1,457.2 303.2,454.7 307.2,452.3 311.2,450.0 315.1,447.8 319.0,445.5 322.8,443.4 326.6,441.2 330.3,439.2 333.9,437.1 337.5,435.1 341.0,433.0 344.5,431.1 347.9,429.1 351.2,427.2 354.5,425.2 357.7,423.3 360.9,421.4 364.0,419.6 367.0,417.7 370.0,415.9 373.0,414.1 375.8,412.3 378.6,410.5 381.4,408.7 384.0,406.9 386.7,405.2 389.2,403.4 391.7,401.7 394.2,400.0 396.6,398.3 398.9,396.6 401.2,395.0 403.4,393.3 405.6,391.7 407.7,390.0 409.7,388.4 411.7,386.8 413.7,385.2 415.5,383.6 417.4,382.0 419.1,380.5 420.9,378.9 422.5,377.4 424.1,375.9 425.7,374.4 427.2,372.9 428.7,371.4 430.1,370.0 431.5,368.5 432.8,367.1 434.0,365.7 435.3,364.3 436.4,362.9 437.6,361.5 438.7,360.1 439.7,358.8 440.7,357.5 441.7,356.1 442.6,354.8 443.5,353.5 444.3,352.3 445.1,351.0 445.9,349.7 446.7,348.5 447.4,347.2 448.0,346.0 448.7,344.8 449.3,343.6 449.9,342.4 450.4,341.2 450.9,340.0 451.4,338.8 451.9,337.6 452.3,336.4 452.8,335.2 453.2,334.1 453.5,332.9 453.9,331.7 454.2,330.5 454.5,329.3 454.8,328.1 455.0,326.9 455.2,325.7 455.4,324.4 455.6,323.2 455.8,321.9 455.9,320.7 456.0,319.4 456.1,318.1 456.2,316.8 456.2,315.5 456.2,314.2 456.2,312.8 456.1,311.4 456.1,310.0 456.0,308.6 455.8,307.2 455.7,305.8 455.5,304.3 455.3,302.8 455.0,301.3 454.8,299.8 454.5,298.3 454.1,296.7 453.7,295.2 453.3,293.6 452.9,292.0 452.5,290.4 452.0,288.7 451.4,287.1 450.9,285.4 450.3,283.8 449.7,282.1 449.0,280.4 448.3,278.6 447.6,276.9 446.8,275.2 446.1,273.4 445.2,271.6 444.4,269.8 443.5,268.0 442.6,266.2 441.6,264.4 440.7,262.6 439.7,260.8 438.6,258.9 437.6,257.0 436.5,255.2 435.3,253.3 434.2,251.4 433.0,249.5 431.8,247.6 430.5,245.7 429.2,243.8 427.9,241.9 426.6,239.9 425.2,238.0 423.8,236.1 422.4,234.1 421.0,232.2 419.5,230.2 418.0,228.3 416.5,226.3 414.9,224.3 413.3,222.3 411.7,220.4 410.1,218.4 408.5,216.4 406.8,214.4 405.1,212.4 403.4,210.4 401.6,208.4 399.8,206.4 398.0,204.4 396.2,202.4 394.4,200.4 392.5,198.3 390.6,196.3 388.7,194.3 386.8,192.3 384.9,190.3 382.9,188.2 380.9,186.2 378.9,184.2 376.9,182.2 374.8,180.2 372.8,178.1 370.7,176.1 368.6,174.1 366.5,172.0 364.3,170.0 362.2,168.0 360.0,166.0 357.8,163.9 355.6,161.9 353.4,159.9 351.2,157.9 348.9,155.9 346.7,153.8 344.4,151.8 342.1,149.8 339.8,147.8 337.5,145.8 335.1,143.8 332.8,141.8 330.4,139.8 328.0,137.8 325.7,135.8 323.3,133.8 320.8,131.8 318.4,129.8 316.0,127.9 313.5,125.9 311.0,124.0 Z"/>
+      <path d="M 689.0,124.0 686.3,125.6 683.5,127.1 680.8,128.6 678.0,130.1 675.3,131.6 672.5,133.2 669.8,134.7 667.1,136.2 664.4,137.7 661.7,139.3 659.0,140.8 656.3,142.3 653.6,143.9 651.0,145.4 648.3,146.9 645.7,148.5 643.1,150.0 640.4,151.6 637.8,153.2 635.2,154.7 632.7,156.3 630.1,157.9 627.5,159.4 625.0,161.0 622.4,162.6 619.9,164.2 617.4,165.8 614.9,167.4 612.5,169.0 610.0,170.6 607.6,172.2 605.1,173.8 602.7,175.4 600.3,177.0 597.9,178.7 595.6,180.3 593.2,182.0 590.9,183.6 588.6,185.3 586.3,186.9 584.0,188.6 581.8,190.2 579.5,191.9 577.3,193.6 575.1,195.3 572.9,197.0 570.8,198.7 568.6,200.4 566.5,202.1 564.4,203.8 562.3,205.5 560.2,207.3 558.2,209.0 556.2,210.8 554.2,212.5 552.2,214.3 550.2,216.1 548.3,217.8 546.4,219.6 544.5,221.4 542.6,223.2 540.8,225.0 539.0,226.8 537.2,228.7 535.4,230.5 533.7,232.4 532.0,234.2 530.3,236.1 528.6,238.0 527.0,239.9 525.3,241.8 523.8,243.7 522.2,245.6 520.7,247.5 519.2,249.5 517.7,251.4 516.2,253.4 514.8,255.4 513.4,257.4 512.1,259.4 510.8,261.4 509.5,263.5 508.2,265.5 507.0,267.6 505.8,269.7 504.6,271.8 503.5,273.9 502.4,276.0 501.4,278.1 500.4,280.3 499.4,282.5 498.5,284.7 497.6,286.9 496.7,289.1 495.9,291.4 495.1,293.6 494.4,295.9 493.7,298.2 493.1,300.5 492.5,302.8 492.0,305.2 491.5,307.5 491.0,309.9 490.7,312.3 490.3,314.7 490.0,317.1 489.8,319.5 489.6,321.9 489.5,324.4 489.5,326.8 489.5,329.3 489.5,331.8 489.6,334.2 489.8,336.7 490.0,339.2 490.3,341.7 490.7,344.2 491.1,346.7 491.6,349.1 492.1,351.6 492.7,354.1 493.4,356.6 494.1,359.0 494.9,361.5 495.8,363.9 496.7,366.4 497.6,368.8 498.7,371.2 499.8,373.6 500.9,376.0 502.1,378.4 503.4,380.7 504.7,383.1 506.1,385.4 507.5,387.7 509.0,390.0 510.6,392.3 512.2,394.5 513.9,396.7 515.6,399.0 517.4,401.2 519.2,403.3 521.1,405.5 523.0,407.6 525.0,409.7 527.0,411.8 529.1,413.9 531.3,416.0 533.5,418.0 535.8,420.0 538.1,422.0 540.4,424.0 542.8,426.0 545.3,427.9 547.8,429.9 550.4,431.8 553.0,433.6 555.7,435.5 558.5,437.3 561.2,439.2 564.1,441.0 567.0,442.8 569.9,444.5 572.9,446.3 576.0,448.0 579.1,449.7 582.3,451.4 585.5,453.1 588.8,454.7 592.1,456.3 595.5,457.9 599.0,459.5 602.5,461.1 606.0,462.6 609.7,464.1 613.4,465.6 617.1,467.1 620.9,468.5 624.8,469.9 628.7,471.3 632.7,472.7 636.7,474.0 640.8,475.3 645.0,476.6 649.3,477.8 653.6,479.0 657.9,480.1 662.4,481.3 666.9,482.3 671.5,483.3 676.1,484.3 680.9,485.2 685.7,486.0 690.6,486.7 695.5,487.3 700.6,487.7 705.8,488.0 711.1,488.0 716.7,487.5 722.6,485.8 725.4,476.9 721.6,472.1 717.5,468.5 713.4,465.3 709.2,462.5 705.0,459.8 700.9,457.2 696.8,454.7 692.8,452.3 688.8,450.0 684.9,447.8 681.0,445.5 677.2,443.4 673.4,441.2 669.7,439.2 666.1,437.1 662.5,435.1 659.0,433.0 655.5,431.1 652.1,429.1 648.8,427.2 645.5,425.2 642.3,423.3 639.1,421.4 636.0,419.6 633.0,417.7 630.0,415.9 627.0,414.1 624.2,412.3 621.4,410.5 618.6,408.7 616.0,406.9 613.3,405.2 610.8,403.4 608.3,401.7 605.8,400.0 603.4,398.3 601.1,396.6 598.8,395.0 596.6,393.3 594.4,391.7 592.3,390.0 590.3,388.4 588.3,386.8 586.3,385.2 584.5,383.6 582.6,382.0 580.9,380.5 579.1,378.9 577.5,377.4 575.9,375.9 574.3,374.4 572.8,372.9 571.3,371.4 569.9,370.0 568.5,368.5 567.2,367.1 566.0,365.7 564.7,364.3 563.6,362.9 562.4,361.5 561.3,360.1 560.3,358.8 559.3,357.5 558.3,356.1 557.4,354.8 556.5,353.5 555.7,352.3 554.9,351.0 554.1,349.7 553.3,348.5 552.6,347.2 552.0,346.0 551.3,344.8 550.7,343.6 550.1,342.4 549.6,341.2 549.1,340.0 548.6,338.8 548.1,337.6 547.7,336.4 547.2,335.2 546.8,334.1 546.5,332.9 546.1,331.7 545.8,330.5 545.5,329.3 545.2,328.1 545.0,326.9 544.8,325.7 544.6,324.4 544.4,323.2 544.2,321.9 544.1,320.7 544.0,319.4 543.9,318.1 543.8,316.8 543.8,315.5 543.8,314.2 543.8,312.8 543.9,311.4 543.9,310.0 544.0,308.6 544.2,307.2 544.3,305.8 544.5,304.3 544.7,302.8 545.0,301.3 545.2,299.8 545.5,298.3 545.9,296.7 546.3,295.2 546.7,293.6 547.1,292.0 547.5,290.4 548.0,288.7 548.6,287.1 549.1,285.4 549.7,283.8 550.3,282.1 551.0,280.4 551.7,278.6 552.4,276.9 553.2,275.2 553.9,273.4 554.8,271.6 555.6,269.8 556.5,268.0 557.4,266.2 558.4,264.4 559.3,262.6 560.3,260.8 561.4,258.9 562.4,257.0 563.5,255.2 564.7,253.3 565.8,251.4 567.0,249.5 568.2,247.6 569.5,245.7 570.8,243.8 572.1,241.9 573.4,239.9 574.8,238.0 576.2,236.1 577.6,234.1 579.0,232.2 580.5,230.2 582.0,228.3 583.5,226.3 585.1,224.3 586.7,222.3 588.3,220.4 589.9,218.4 591.5,216.4 593.2,214.4 594.9,212.4 596.6,210.4 598.4,208.4 600.2,206.4 602.0,204.4 603.8,202.4 605.6,200.4 607.5,198.3 609.4,196.3 611.3,194.3 613.2,192.3 615.1,190.3 617.1,188.2 619.1,186.2 621.1,184.2 623.1,182.2 625.2,180.2 627.2,178.1 629.3,176.1 631.4,174.1 633.5,172.0 635.7,170.0 637.8,168.0 640.0,166.0 642.2,163.9 644.4,161.9 646.6,159.9 648.8,157.9 651.1,155.9 653.3,153.8 655.6,151.8 657.9,149.8 660.2,147.8 662.5,145.8 664.9,143.8 667.2,141.8 669.6,139.8 672.0,137.8 674.3,135.8 676.7,133.8 679.2,131.8 681.6,129.8 684.0,127.9 686.5,125.9 689.0,124.0 Z"/>
+    </g>
+  </defs>
+</svg>
+
+<a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-cyan-400 focus:px-4 focus:py-2 focus:font-semibold focus:text-ink-950">Skip to content</a>
+
+<!-- ============================================================= NAVBAR -->
+<header id="navbar" class="fixed inset-x-0 top-0 z-50 border-b border-white/5 bg-ink-950/95 transition-colors duration-200">
+  <nav class="mx-auto flex h-[72px] max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8 min-[1400px]:max-w-[1512px]" aria-label="Primary">
+
+    <!-- Logo -->
+    <a href="/" class="group flex shrink-0 items-center gap-3" aria-label="Howidely home">
+      <svg viewBox="250 105 500 395" class="h-8 w-10 shrink-0 text-white transition-transform duration-500 group-hover:scale-110" aria-hidden="true"><use href="#hw-mark"/></svg>
+      <span class="text-lg font-bold uppercase tracking-[0.32em] text-white">Howidely</span>
+    </a>
+
+    <!-- Desktop links -->
+    <ul class="hidden items-center gap-4 lg:flex">
+      <li><a href="/#about"      class="nav-link relative -my-2 whitespace-nowrap py-2 text-[13px] font-medium text-slate-300 transition-colors hover:text-white xl:text-sm">About</a></li>
+      <li><a href="/#history"    class="nav-link relative -my-2 whitespace-nowrap py-2 text-[13px] font-medium text-slate-300 transition-colors hover:text-white xl:text-sm">History</a></li>
+      <li><a href="/#abox"       class="nav-link relative -my-2 whitespace-nowrap py-2 text-[13px] font-medium text-slate-300 transition-colors hover:text-white xl:text-sm">A-BOX</a></li>
+      <li><a href="/#roadmap"    class="nav-link relative -my-2 whitespace-nowrap py-2 text-[13px] font-medium text-slate-300 transition-colors hover:text-white xl:text-sm">Coming Soon</a></li>
+      <li><a href="/#projects"   class="nav-link relative -my-2 whitespace-nowrap py-2 text-[13px] font-medium text-slate-300 transition-colors hover:text-white xl:text-sm">Projects</a></li>
+      <li><a href="/#tak"        class="nav-link relative -my-2 whitespace-nowrap py-2 text-[13px] font-medium text-slate-300 transition-colors hover:text-white xl:text-sm">TAK Server UI</a></li>
+      <li><a href="/fleet/"     aria-current="page" class="nav-link active relative -my-2 whitespace-nowrap py-2 text-[13px] font-medium text-slate-300 transition-colors hover:text-white xl:text-sm">Fleet</a></li>
+      <li><a href="/#leadership" class="nav-link relative -my-2 whitespace-nowrap py-2 text-[13px] font-medium text-slate-300 transition-colors hover:text-white xl:text-sm">Leadership</a></li>
+      <li><a href="/#contact"    class="nav-link relative -my-2 whitespace-nowrap py-2 text-[13px] font-medium text-slate-300 transition-colors hover:text-white xl:text-sm">Contact</a></li>
+    </ul>
+
+    <div class="flex shrink-0 items-center gap-3">
+      <!-- Live system status - deliberately static: no pulsing ring, no rotating label -->
+      <div class="hidden shrink-0 items-center gap-2.5 rounded-full border border-emerald-400/25 bg-emerald-400/5 px-3.5 py-1.5 min-[1400px]:flex">
+        <span class="h-2 w-2 shrink-0 rounded-full bg-emerald-400" aria-hidden="true"></span>
+        <span class="whitespace-nowrap font-mono text-[11px] font-medium uppercase tracking-wider text-emerald-300">All Systems Operational</span>
+        <span id="status-clock" aria-hidden="true" class="shrink-0 font-mono text-[11px] tabular-nums text-emerald-400/80">--:--:-- UTC</span>
+      </div>
+
+      <a href="#waitlist" class="hidden rounded-lg bg-amber-400 px-4 py-2 text-sm font-semibold text-ink-950 transition-all hover:bg-amber-300 md:inline-block">Join the waitlist</a>
+
+      <!-- Mobile toggle -->
+      <button id="menu-btn" type="button" class="rounded-lg border border-white/10 p-2 text-slate-200 transition hover:bg-white/5 lg:hidden" aria-expanded="false" aria-controls="mobile-menu" aria-label="Toggle navigation menu">
+        <svg id="icon-open" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" d="M4 7h16M4 12h16M4 17h16"/></svg>
+        <svg id="icon-close" class="hidden h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Mobile menu -->
+  <div id="mobile-menu" class="hidden border-t border-white/5 bg-ink-900/95 backdrop-blur-xl lg:hidden">
+    <ul class="space-y-1 px-4 py-4">
+      <li><a href="/#about"      class="block rounded-lg px-3 py-2.5 text-sm font-medium text-slate-200 hover:bg-white/5 hover:text-cyan-300">About</a></li>
+      <li><a href="/#history"    class="block rounded-lg px-3 py-2.5 text-sm font-medium text-slate-200 hover:bg-white/5 hover:text-cyan-300">History</a></li>
+      <li><a href="/#abox"       class="block rounded-lg px-3 py-2.5 text-sm font-medium text-slate-200 hover:bg-white/5 hover:text-cyan-300">A-BOX</a></li>
+      <li><a href="/#roadmap"    class="block rounded-lg px-3 py-2.5 text-sm font-medium text-slate-200 hover:bg-white/5 hover:text-cyan-300">Coming Soon</a></li>
+      <li><a href="/#projects"   class="block rounded-lg px-3 py-2.5 text-sm font-medium text-slate-200 hover:bg-white/5 hover:text-cyan-300">Projects</a></li>
+      <li><a href="/#tak"        class="block rounded-lg px-3 py-2.5 text-sm font-medium text-slate-200 hover:bg-white/5 hover:text-cyan-300">TAK Server UI</a></li>
+      <li><a href="/fleet/"     class="block rounded-lg px-3 py-2.5 text-sm font-medium text-slate-200 hover:bg-white/5 hover:text-cyan-300">Fleet</a></li>
+      <li><a href="/#leadership" class="block rounded-lg px-3 py-2.5 text-sm font-medium text-slate-200 hover:bg-white/5 hover:text-cyan-300">Leadership</a></li>
+      <li><a href="/#contact"    class="block rounded-lg px-3 py-2.5 text-sm font-medium text-slate-200 hover:bg-white/5 hover:text-cyan-300">Contact</a></li>
+      <li class="pt-2"><a href="#waitlist" class="block rounded-lg bg-amber-400 px-3 py-2.5 text-center text-sm font-semibold text-ink-950">Join the waitlist</a></li>
+    </ul>
+  </div>
+</header>
+
+<main id="main" tabindex="-1">
+
+<!-- Every figure on this page is in docs/fleet-sources.md with its source.
+     RTAK Fleet and A-BOX Mobile are COMING SOON: nothing here may read as a
+     product you can buy today. Emergency calls are always operator-confirmed;
+     RTAK is never presented as an ELD. Competitors are not named. -->
+
+<!-- ============================================================= HERO -->
+<section id="top" class="relative overflow-hidden pt-[72px]">
+  <div class="tactical-grid radial-fade absolute inset-0 opacity-60" aria-hidden="true"></div>
+  <div class="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_30%_10%,rgba(251,191,36,.10),transparent_70%)]" aria-hidden="true"></div>
+
+  <div class="relative mx-auto grid max-w-7xl grid-cols-1 items-center gap-14 px-4 py-20 sm:px-6 sm:py-28 lg:grid-cols-12 lg:px-8">
+    <div class="lg:col-span-7">
+      <div class="flex flex-wrap items-center gap-3">
+        <span class="font-mono text-xs uppercase tracking-[0.28em] text-amber-300">RTAK Fleet</span>
+        <span class="rounded-md bg-amber-400/10 px-2.5 py-1 font-mono text-[10px] uppercase tracking-widest text-amber-200 ring-1 ring-amber-400/30">Coming soon</span>
+      </div>
+      <h1 class="mt-5 text-4xl font-extrabold leading-[1.05] tracking-tight text-white sm:text-6xl">
+        Every truck watched.<br><span class="text-gradient">Every decision yours.</span>
+      </h1>
+      <p class="mt-7 max-w-2xl text-lg leading-relaxed text-slate-400">
+        An in-vehicle unit that acts the moment something is wrong &mdash; it starts the cameras,
+        messages the driver and raises the alarm. Your operator sees the truck, its route and live
+        video on one map, and decides what happens next.
+      </p>
+      <div class="mt-9 flex flex-wrap items-center gap-4">
+        <a href="#waitlist" class="inline-flex items-center gap-2 rounded-xl bg-amber-400 px-7 py-3.5 text-sm font-semibold text-ink-950 transition-all hover:-translate-y-0.5 hover:bg-amber-300">
+          Join the waitlist
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12l-7.5 7.5M21 12H3"/></svg>
+        </a>
+        <a href="#how" class="rounded-xl border border-white/15 px-6 py-3.5 text-sm font-semibold text-slate-200 transition hover:border-white/30 hover:bg-white/5">How it works</a>
+      </div>
+      <p class="mt-8 max-w-xl font-mono text-[11px] leading-relaxed text-muted">
+        RTAK Fleet and the A-BOX Mobile unit are not available yet. They are built on
+        <a href="/#tak" class="text-slate-300 underline decoration-white/30 underline-offset-2 hover:text-cyan-300">RTAK Server</a>,
+        which ships today.
+      </p>
+    </div>
+
+    <!-- At-a-glance flow, decorative copy of the "How it works" section -->
+    <div class="lg:col-span-5" aria-hidden="true">
+      <div class="rounded-2xl border border-white/10 bg-ink-900 p-6 shadow-2xl shadow-black/60">
+        <div class="flex items-center justify-between border-b border-white/10 pb-3 font-mono text-[10px] uppercase tracking-wider text-muted">
+          <span>Unit 214 &middot; Event</span><span class="text-amber-300">Off route</span>
+        </div>
+        <ol class="mt-4 space-y-3 font-mono text-[12px]">
+          <li class="flex gap-3"><span class="text-rose-300">!</span><span class="text-slate-200">Left the planned route corridor</span></li>
+          <li class="flex gap-3"><span class="text-emerald-300">&#10003;</span><span class="text-slate-300">Road and cabin cameras recording</span></li>
+          <li class="flex gap-3"><span class="text-emerald-300">&#10003;</span><span class="text-slate-300">Driver asked to confirm a detour</span></li>
+          <li class="flex gap-3"><span class="text-cyan-300">&rarr;</span><span class="text-slate-300">Operator alerted with a recommended action</span></li>
+        </ol>
+        <div class="mt-5 grid grid-cols-2 gap-2 font-mono text-[11px]">
+          <span class="rounded-lg bg-rose-500/15 px-3 py-2 text-center text-rose-200 ring-1 ring-rose-400/30">Call police</span>
+          <span class="rounded-lg bg-white/5 px-3 py-2 text-center text-slate-300 ring-1 ring-white/10">Call driver</span>
+          <span class="rounded-lg bg-white/5 px-3 py-2 text-center text-slate-300 ring-1 ring-white/10">Roadside assist</span>
+          <span class="rounded-lg bg-white/5 px-3 py-2 text-center text-slate-300 ring-1 ring-white/10">Dismiss</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= THE PROBLEM -->
+<section id="problem" class="relative border-t border-white/5 py-24 sm:py-28">
+  <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="reveal max-w-3xl">
+      <span class="font-mono text-xs uppercase tracking-[0.28em] text-amber-300">01 / The problem</span>
+      <h2 class="mt-4 text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl">Cargo theft has become organized crime.</h2>
+      <p class="mt-6 text-lg leading-relaxed text-slate-400">
+        Thieves go after the truck itself, and more than one theft in five has help from the inside.
+        The sooner someone with authority sees what is happening, the more options they still have.
+      </p>
+    </div>
+    <dl class="reveal mt-12 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+      <div class="rounded-2xl border border-white/10 bg-ink-900 p-6">
+        <dt class="font-mono text-[11px] uppercase tracking-wider text-muted">North American losses, 2025</dt>
+        <dd class="mt-3 text-4xl font-extrabold text-white">US$6.6B</dd>
+      </div>
+      <div class="rounded-2xl border border-white/10 bg-ink-900 p-6">
+        <dt class="font-mono text-[11px] uppercase tracking-wider text-muted">More incidents than 2024</dt>
+        <dd class="mt-3 text-4xl font-extrabold text-white">+18%</dd>
+      </div>
+      <div class="rounded-2xl border border-white/10 bg-ink-900 p-6">
+        <dt class="font-mono text-[11px] uppercase tracking-wider text-muted">Thefts that target trucks</dt>
+        <dd class="mt-3 text-4xl font-extrabold text-white">~70%</dd>
+      </div>
+      <div class="rounded-2xl border border-white/10 bg-ink-900 p-6">
+        <dt class="font-mono text-[11px] uppercase tracking-wider text-muted">Thefts with inside help</dt>
+        <dd class="mt-3 text-4xl font-extrabold text-white">22%</dd>
+      </div>
+    </dl>
+    <p class="mt-5 font-mono text-[11px] text-muted">Source: TT Club global cargo theft analysis, 2025 figures.</p>
+  </div>
+</section>
+
+<!-- ============================================================= HOW IT WORKS -->
+<section id="how" class="relative border-t border-white/5 bg-ink-900/40 py-24 sm:py-28">
+  <div class="tactical-grid radial-fade absolute inset-0 opacity-30" aria-hidden="true"></div>
+  <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="reveal max-w-3xl">
+      <span class="font-mono text-xs uppercase tracking-[0.28em] text-amber-300">02 / How it works</span>
+      <h2 class="mt-4 text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl">The unit acts. Your operator decides.</h2>
+      <p class="mt-6 text-lg leading-relaxed text-slate-400">
+        Everything that can safely happen on its own happens at once. Everything that commits people
+        &mdash; police, a tow truck, a call to the driver &mdash; waits for a person who can see the
+        whole picture.
+      </p>
+    </div>
+    <ol class="mt-12 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-4">
+      <li class="reveal feat-card">
+        <div class="feat-num" aria-hidden="true">01</div>
+        <h3 class="feat-title !mt-0 text-amber-200">Trigger</h3>
+        <p class="feat-body">The unit watches the rules you set: geofences, the planned route, stop time, driving time, harsh events, the panic button and its own power.</p>
+      </li>
+      <li class="reveal feat-card">
+        <div class="feat-num" aria-hidden="true">02</div>
+        <h3 class="feat-title !mt-0 text-amber-200">Automatically</h3>
+        <p class="feat-body">It starts recording and streaming the cameras, messages the driver&rsquo;s phone, and raises an alert in RTAK with a recommended action.</p>
+      </li>
+      <li class="reveal feat-card">
+        <div class="feat-num" aria-hidden="true">03</div>
+        <h3 class="feat-title !mt-0 text-amber-200">Operator decides</h3>
+        <p class="feat-body">The operator sees the truck, its route and live video on one map, and chooses: police with exact GPS and a live video link, roadside assistance, a call to the driver, or dismiss with a reason.</p>
+      </li>
+      <li class="reveal feat-card">
+        <div class="feat-num" aria-hidden="true">04</div>
+        <h3 class="feat-title !mt-0 text-amber-200">Safety net</h3>
+        <p class="feat-body">If nobody responds in time, the alert escalates to a backup operator. Nothing is dropped, and nothing calls emergency services on its own.</p>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<!-- ============================================================= SCENARIOS -->
+<section id="scenarios" class="relative border-t border-white/5 py-24 sm:py-28">
+  <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="reveal max-w-3xl">
+      <span class="font-mono text-xs uppercase tracking-[0.28em] text-amber-300">03 / Scenarios</span>
+      <h2 class="mt-4 text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl">Seven situations, one playbook.</h2>
+    </div>
+    <div class="mt-12 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3" id="scenario-grid"></div>
+    <noscript>
+      <ul class="mt-6 list-disc space-y-1 pl-6 text-sm text-slate-400">
+        <li>Off route</li><li>Stopped too long</li><li>Driving too long</li><li>Crash or harsh event</li>
+        <li>Panic button</li><li>Power cut or tampering</li><li>Unapproved night parking</li>
+      </ul>
+    </noscript>
+  </div>
+</section>
+
+<!-- ============================================================= SIMULATION -->
+<section id="demo" class="relative border-t border-white/5 bg-ink-900/40 py-24 sm:py-28">
+  <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="reveal flex flex-wrap items-end justify-between gap-6">
+      <div class="max-w-3xl">
+        <span class="font-mono text-xs uppercase tracking-[0.28em] text-amber-300">04 / See it happen</span>
+        <h2 class="mt-4 text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl">A truck leaves its route.</h2>
+      </div>
+      <span class="rounded-md bg-violet-400/10 px-3 py-1.5 font-mono text-[10px] uppercase tracking-widest text-violet-200 ring-1 ring-violet-400/30">Concept simulation &mdash; not a shipping product</span>
+    </div>
+
+    <div class="reveal mt-10 grid grid-cols-1 overflow-hidden rounded-2xl border border-white/10 bg-ink-950 shadow-2xl shadow-black/60 lg:grid-cols-12">
+      <div id="fl-map" class="tactical-grid relative h-[26rem] overflow-hidden bg-gradient-to-br from-ink-900 to-ink-950 lg:col-span-8 lg:h-[30rem]">
+        <span id="fl-place" class="absolute left-3 top-3 z-10 rounded bg-ink-950/90 px-2 py-1 font-mono text-[10px] uppercase tracking-wider text-slate-300">&mdash;</span>
+        <div class="pointer-events-none absolute bottom-3 right-3 z-10 rounded bg-ink-950/90 px-2 py-1 font-mono text-[9px] text-muted">&#169; Esri, HERE, Garmin, &#169; OpenStreetMap contributors</div>
+      </div>
+      <div class="flex flex-col border-t border-white/10 lg:col-span-4 lg:border-l lg:border-t-0">
+        <div class="flex items-center justify-between border-b border-white/10 px-4 py-3">
+          <span class="font-mono text-[11px] uppercase tracking-wider text-slate-300">Operator console</span>
+          <span id="fl-state" class="rounded bg-emerald-400/10 px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider text-emerald-300">On route</span>
+        </div>
+        <div id="fl-alert" class="hidden border-b border-rose-400/30 bg-rose-500/[0.07] p-4" role="region" aria-label="Alert awaiting a decision">
+          <div class="flex items-start gap-3">
+            <div id="fl-cam" class="relative h-[72px] w-[128px] shrink-0 overflow-hidden rounded-md bg-black ring-1 ring-white/10">
+              <span class="absolute left-1 top-1 z-10 rounded bg-emerald-700 px-1 font-mono text-[8px] font-bold text-white">LIVE</span>
+            </div>
+            <div>
+              <div class="font-mono text-[11px] font-semibold text-rose-200">Unit 214 &middot; off route</div>
+              <div id="fl-gps" class="mt-1 font-mono text-[10px] text-slate-300">&mdash;</div>
+              <div id="fl-timer" class="mt-1 font-mono text-[10px] text-amber-200">&mdash;</div>
+            </div>
+          </div>
+          <div class="mt-4 grid grid-cols-2 gap-2" id="fl-actions">
+            <button type="button" data-act="police" class="rounded-lg bg-rose-500/20 px-2 py-2 font-mono text-[11px] font-semibold text-rose-100 ring-1 ring-rose-400/40 transition hover:bg-rose-500/30">Call police</button>
+            <button type="button" data-act="driver" class="rounded-lg bg-white/5 px-2 py-2 font-mono text-[11px] text-slate-200 ring-1 ring-white/15 transition hover:bg-white/10">Call driver</button>
+            <button type="button" data-act="roadside" class="rounded-lg bg-white/5 px-2 py-2 font-mono text-[11px] text-slate-200 ring-1 ring-white/15 transition hover:bg-white/10">Roadside assist</button>
+            <button type="button" data-act="dismiss" class="rounded-lg bg-white/5 px-2 py-2 font-mono text-[11px] text-slate-200 ring-1 ring-white/15 transition hover:bg-white/10">Dismiss</button>
+          </div>
+        </div>
+        <ol id="fl-log" class="thin-scroll h-56 flex-1 space-y-2 overflow-y-auto px-4 py-3 font-mono text-[11px] lg:h-auto" aria-live="polite" aria-label="Event log"></ol>
+        <p class="border-t border-white/10 px-4 py-2.5 font-mono text-[10px] text-muted">Simulated. Nothing is dialed or sent.</p>
+      </div>
+    </div>
+    <noscript><p class="mt-6 rounded-xl border border-amber-400/30 bg-amber-400/5 p-4 text-sm text-amber-200">The simulation needs JavaScript. The rest of this page works without it.</p></noscript>
+  </div>
+</section>
+
+<!-- ============================================================= HARDWARE -->
+<section id="hardware" class="relative border-t border-white/5 py-24 sm:py-28">
+  <div class="relative mx-auto grid max-w-7xl grid-cols-1 items-center gap-14 px-4 sm:px-6 lg:grid-cols-12 lg:px-8">
+    <div class="reveal lg:col-span-5">
+      <svg viewBox="0 0 400 300" class="w-full" role="img" aria-label="Illustration of the A-BOX Mobile in-vehicle unit: a compact box with a screen, two camera lenses and an antenna">
+        <defs>
+          <linearGradient id="bx" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1e293b"/><stop offset="1" stop-color="#0b1120"/></linearGradient>
+        </defs>
+        <rect x="60" y="70" width="280" height="170" rx="22" fill="url(#bx)" stroke="#334155" stroke-width="2"/>
+        <rect x="84" y="94" width="150" height="100" rx="8" fill="#020617" stroke="#22d3ee" stroke-opacity=".5"/>
+        <path d="M100 170 L135 140 L160 156 L190 120 L218 150" fill="none" stroke="#22d3ee" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="160" cy="156" r="4" fill="#fbbf24"/>
+        <circle cx="282" cy="118" r="20" fill="#020617" stroke="#475569" stroke-width="2"/>
+        <circle cx="282" cy="118" r="9" fill="#0e7490"/>
+        <circle cx="282" cy="178" r="14" fill="#020617" stroke="#475569" stroke-width="2"/>
+        <circle cx="282" cy="178" r="6" fill="#0e7490"/>
+        <rect x="84" y="210" width="60" height="10" rx="5" fill="#334155"/>
+        <circle cx="318" cy="220" r="6" fill="#f43f5e"/>
+        <line x1="310" y1="70" x2="330" y2="20" stroke="#64748b" stroke-width="4" stroke-linecap="round"/>
+        <path d="M322 12 q12 -8 24 0 M318 4 q16 -12 32 0" fill="none" stroke="#fbbf24" stroke-width="2" stroke-linecap="round"/>
+        <rect x="140" y="240" width="120" height="14" rx="4" fill="#1e293b"/>
+      </svg>
+    </div>
+    <div class="reveal lg:col-span-7">
+      <div class="flex flex-wrap items-center gap-3">
+        <span class="font-mono text-xs uppercase tracking-[0.28em] text-amber-300">05 / A-BOX Mobile</span>
+        <span class="rounded-md bg-white/5 px-2.5 py-1 font-mono text-[10px] uppercase tracking-widest text-slate-300 ring-1 ring-white/15">Design targets</span>
+      </div>
+      <h2 class="mt-4 text-3xl font-bold tracking-tight text-white sm:text-4xl">The unit that lives in the truck.</h2>
+      <p class="mt-5 text-lg leading-relaxed text-slate-400">
+        A fixed Android unit from the team that built
+        <a href="/#abox" class="text-cyan-300 underline decoration-cyan-400/40 underline-offset-2 hover:text-cyan-200">A-BOX</a>.
+        It speaks the TAK protocol, so every truck appears in RTAK like any other unit.
+      </p>
+      <ul class="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <li class="rounded-xl border border-white/10 bg-ink-900 px-4 py-3 text-sm text-slate-300">Hardwired, fixed Android unit</li>
+        <li class="rounded-xl border border-white/10 bg-ink-900 px-4 py-3 text-sm text-slate-300">LTE with GPS positioning</li>
+        <li class="rounded-xl border border-white/10 bg-ink-900 px-4 py-3 text-sm text-slate-300">Road-facing and cabin cameras</li>
+        <li class="rounded-xl border border-white/10 bg-ink-900 px-4 py-3 text-sm text-slate-300">Hidden panic button for the driver</li>
+        <li class="rounded-xl border border-white/10 bg-ink-900 px-4 py-3 text-sm text-slate-300">Backup battery, power-cut and tamper detection</li>
+        <li class="rounded-xl border border-white/10 bg-ink-900 px-4 py-3 text-sm text-slate-300">Stores events offline, sends them when signal returns</li>
+      </ul>
+      <p class="mt-6 font-mono text-[11px] leading-relaxed text-muted">
+        Design targets, not a datasheet: specifications will change as the unit is built and
+        validated. The cabin camera is used under your company&rsquo;s driver-privacy policy.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= COMPARISON -->
+<section id="compare" class="relative border-t border-white/5 bg-ink-900/40 py-24 sm:py-28">
+  <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="reveal max-w-3xl">
+      <span class="font-mono text-xs uppercase tracking-[0.28em] text-amber-300">06 / Why RTAK Fleet</span>
+      <h2 class="mt-4 text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl">Your server. Your operator. Your call.</h2>
+    </div>
+    <div class="reveal mt-12 overflow-x-auto rounded-2xl border border-white/10 bg-ink-950">
+      <table class="w-full min-w-[640px] border-collapse text-left text-sm">
+        <caption class="sr-only">RTAK Fleet compared with typical cloud fleet platforms</caption>
+        <thead>
+          <tr class="border-b border-white/10 font-mono text-[11px] uppercase tracking-wider">
+            <th scope="col" class="px-5 py-4 font-medium text-muted">&nbsp;</th>
+            <th scope="col" class="px-5 py-4 font-semibold text-amber-200">RTAK Fleet</th>
+            <th scope="col" class="px-5 py-4 font-medium text-slate-400">Typical cloud fleet platforms</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-white/5">
+          <tr><th scope="row" class="px-5 py-4 font-medium text-white">Where your data lives</th><td class="px-5 py-4 text-slate-200">Your own server, under your control</td><td class="px-5 py-4 text-slate-400">The vendor&rsquo;s cloud</td></tr>
+          <tr><th scope="row" class="px-5 py-4 font-medium text-white">How you pay</th><td class="px-5 py-4 text-slate-200">No per-vehicle subscription</td><td class="px-5 py-4 text-slate-400">Typically a monthly fee per vehicle</td></tr>
+          <tr><th scope="row" class="px-5 py-4 font-medium text-white">Who decides an escalation</th><td class="px-5 py-4 text-slate-200">Your operator, every time &mdash; with a backup if nobody answers</td><td class="px-5 py-4 text-slate-400">Configured rules and alerts; varies by platform</td></tr>
+          <tr><th scope="row" class="px-5 py-4 font-medium text-white">Live video</th><td class="px-5 py-4 text-slate-200">Over each truck on the live map, several at once</td><td class="px-5 py-4 text-slate-400">Varies by platform</td></tr>
+          <tr><th scope="row" class="px-5 py-4 font-medium text-white">Handing an incident to police</th><td class="px-5 py-4 text-slate-200">Onto their own TAK maps (ATAK, iTAK)</td><td class="px-5 py-4 text-slate-400">Not a standard feature</td></tr>
+          <tr><th scope="row" class="px-5 py-4 font-medium text-white">Electronic logging (ELD)</th><td class="px-5 py-4 text-slate-200">Works alongside your certified ELD</td><td class="px-5 py-4 text-slate-400">Often included</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="mt-4 font-mono text-[11px] text-muted">Compared with typical cloud telematics offerings as of October 2026. Individual platforms differ.</p>
+  </div>
+</section>
+
+<!-- ============================================================= SHIPPING TODAY -->
+<section id="today" class="relative border-t border-white/5 py-24 sm:py-28">
+  <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="reveal grid grid-cols-1 gap-10 lg:grid-cols-12">
+      <div class="lg:col-span-5">
+        <span class="font-mono text-xs uppercase tracking-[0.28em] text-emerald-400">07 / Built on RTAK</span>
+        <h2 class="mt-4 text-3xl font-bold tracking-tight text-white sm:text-4xl">The command picture ships today.</h2>
+        <p class="mt-5 text-lg leading-relaxed text-slate-400">
+          RTAK Fleet adds the vehicle unit and the rules. The map, the video and the operator&rsquo;s
+          tools are RTAK Server, already running on customers&rsquo; own machines.
+        </p>
+        <a href="/#tak" class="mt-7 inline-block rounded-lg border border-emerald-400/40 px-4 py-2 text-sm font-semibold text-emerald-200 transition hover:bg-emerald-400/10">Explore RTAK Server &rarr;</a>
+      </div>
+      <ul class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:col-span-7">
+        <li class="rounded-xl border border-white/10 bg-ink-900 p-4"><span class="font-semibold text-white">Live map</span><span class="mt-1 block text-sm text-slate-400">Units move as they report, drawn on the road they are on.</span></li>
+        <li class="rounded-xl border border-white/10 bg-ink-900 p-4"><span class="font-semibold text-white">Live video over each unit</span><span class="mt-1 block text-sm text-slate-400">Several feeds at once, plus a camera wall.</span></li>
+        <li class="rounded-xl border border-white/10 bg-ink-900 p-4"><span class="font-semibold text-white">Track recording &amp; playback</span><span class="mt-1 block text-sm text-slate-400">Replay any route at any speed.</span></li>
+        <li class="rounded-xl border border-white/10 bg-ink-900 p-4"><span class="font-semibold text-white">Emergency alerts &amp; chat</span><span class="mt-1 block text-sm text-slate-400">911 alerts reach every operator at once.</span></li>
+        <li class="rounded-xl border border-white/10 bg-ink-900 p-4"><span class="font-semibold text-white">Recordings</span><span class="mt-1 block text-sm text-slate-400">Video kept on your server, played back on demand.</span></li>
+        <li class="rounded-xl border border-white/10 bg-ink-900 p-4"><span class="font-semibold text-white">Your own Linux server</span><span class="mt-1 block text-sm text-slate-400">One installer, nothing else to set up.</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= WAITLIST -->
+<section id="waitlist" class="relative border-t border-white/5 bg-ink-900/30 py-24 sm:py-28">
+  <div class="tactical-grid radial-fade absolute inset-0 opacity-40" aria-hidden="true"></div>
+  <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="grid grid-cols-1 gap-14 lg:grid-cols-12">
+      <div class="reveal lg:col-span-5">
+        <span class="font-mono text-xs uppercase tracking-[0.28em] text-amber-300">08 / Waitlist</span>
+        <h2 class="mt-4 text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl">Be first on the road.</h2>
+        <p class="mt-6 text-lg leading-relaxed text-slate-400">
+          Tell us about your fleet. We will contact the first carriers as RTAK Fleet takes shape.
+        </p>
+        <h3 class="mt-10 font-mono text-[11px] uppercase tracking-[0.22em] text-muted">Three promises</h3>
+        <ul class="mt-4 space-y-4">
+          <li class="flex gap-3"><span class="mt-1 text-emerald-300" aria-hidden="true">&#10003;</span><span class="text-sm text-slate-300"><span class="font-semibold text-white">Emergency calls are operator-confirmed.</span> The system never calls police or 911 by itself.</span></li>
+          <li class="flex gap-3"><span class="mt-1 text-emerald-300" aria-hidden="true">&#10003;</span><span class="text-sm text-slate-300"><span class="font-semibold text-white">Drivers know what is recorded.</span> The cabin camera follows your driver-privacy policy.</span></li>
+          <li class="flex gap-3"><span class="mt-1 text-emerald-300" aria-hidden="true">&#10003;</span><span class="text-sm text-slate-300"><span class="font-semibold text-white">Not an ELD.</span> Driving-time alerts are advisory and work alongside your certified ELD.</span></li>
+        </ul>
+      </div>
+
+      <div class="reveal lg:col-span-7">
+        <form id="wl-form" novalidate class="rounded-2xl border border-white/10 bg-ink-950 p-7 sm:p-9">
+          <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+            <div>
+              <label for="wl-name" class="mb-2 block font-mono text-[11px] uppercase tracking-wider text-slate-400">Name *</label>
+              <input id="wl-name" type="text" required autocomplete="name" aria-describedby="wl-name-err"
+                class="w-full rounded-lg border border-white/10 bg-ink-900 px-4 py-3 text-sm text-white placeholder-slate-400 outline-none transition focus:border-amber-400/60 focus:ring-2 focus:ring-amber-400" placeholder="Jane Doe" />
+              <p id="wl-name-err" role="alert" class="mt-1.5 hidden font-mono text-[11px] text-rose-400" data-error-for="wl-name">Please enter your name.</p>
+            </div>
+            <div>
+              <label for="wl-email" class="mb-2 block font-mono text-[11px] uppercase tracking-wider text-slate-400">Email *</label>
+              <input id="wl-email" type="email" required autocomplete="email" aria-describedby="wl-email-err"
+                class="w-full rounded-lg border border-white/10 bg-ink-900 px-4 py-3 text-sm text-white placeholder-slate-400 outline-none transition focus:border-amber-400/60 focus:ring-2 focus:ring-amber-400" placeholder="jane@carrier.com" />
+              <p id="wl-email-err" role="alert" class="mt-1.5 hidden font-mono text-[11px] text-rose-400" data-error-for="wl-email">Enter a valid email address.</p>
+            </div>
+            <div>
+              <label for="wl-company" class="mb-2 block font-mono text-[11px] uppercase tracking-wider text-slate-400">Company *</label>
+              <input id="wl-company" type="text" required autocomplete="organization" aria-describedby="wl-company-err"
+                class="w-full rounded-lg border border-white/10 bg-ink-900 px-4 py-3 text-sm text-white placeholder-slate-400 outline-none transition focus:border-amber-400/60 focus:ring-2 focus:ring-amber-400" placeholder="Carrier or logistics company" />
+              <p id="wl-company-err" role="alert" class="mt-1.5 hidden font-mono text-[11px] text-rose-400" data-error-for="wl-company">Please enter your company.</p>
+            </div>
+            <div>
+              <label for="wl-size" class="mb-2 block font-mono text-[11px] uppercase tracking-wider text-slate-400">Fleet size</label>
+              <select id="wl-size"
+                class="w-full rounded-lg border border-white/10 bg-ink-900 px-4 py-3 text-sm text-white outline-none transition focus:border-amber-400/60 focus:ring-2 focus:ring-amber-400">
+                <option>1&ndash;10 vehicles</option>
+                <option>11&ndash;50 vehicles</option>
+                <option>51&ndash;200 vehicles</option>
+                <option>201&ndash;1,000 vehicles</option>
+                <option>More than 1,000 vehicles</option>
+              </select>
+            </div>
+          </div>
+          <div class="mt-6">
+            <label for="wl-notes" class="mb-2 block font-mono text-[11px] uppercase tracking-wider text-slate-400">What should it watch for?</label>
+            <textarea id="wl-notes" rows="4"
+              class="w-full resize-y rounded-lg border border-white/10 bg-ink-900 px-4 py-3 text-sm text-white placeholder-slate-400 outline-none transition focus:border-amber-400/60 focus:ring-2 focus:ring-amber-400"
+              placeholder="Routes, cargo, the situations that worry you most"></textarea>
+          </div>
+          <div class="mt-8 flex flex-wrap items-center gap-4">
+            <button type="submit" class="inline-flex items-center gap-2 rounded-xl bg-amber-400 px-7 py-3.5 text-sm font-semibold text-ink-950 transition-all hover:-translate-y-0.5 hover:bg-amber-300">Join the waitlist</button>
+            <p class="font-mono text-[11px] text-muted">Opens your email client, addressed to info@howidely.com.</p>
+          </div>
+          <p id="wl-success" class="mt-6 hidden rounded-xl border border-emerald-400/30 bg-emerald-400/5 px-4 py-3 font-mono text-xs leading-relaxed text-emerald-300" role="status">
+            &#10003; Your email client should now be open with the message ready to send to
+            <a href="mailto:info@howidely.com" class="underline hover:text-emerald-200">info@howidely.com</a>.
+            If nothing happened, email us directly at that address.
+          </p>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ============================================================= FOOTER -->
+<footer class="border-t border-white/5 bg-ink-950">
+  <div class="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
+    <div class="flex flex-col items-start justify-between gap-10 md:flex-row">
+
+      <div class="max-w-sm">
+        <div class="flex items-center gap-3">
+          <svg viewBox="250 105 500 395" class="h-7 w-9 shrink-0 text-white" aria-hidden="true"><use href="#hw-mark"/></svg>
+          <span class="text-base font-bold uppercase tracking-[0.32em] text-white">Howidely</span>
+        </div>
+        <p class="mt-5 text-sm leading-relaxed text-muted">
+          High-tech engineering bridging hardware and software for Government, Public Safety and
+          First Responders. Founded April 2020.
+        </p>
+      </div>
+
+      <nav class="grid grid-cols-2 gap-x-14 gap-y-3 sm:grid-cols-3" aria-label="Footer">
+        <a href="/#about"      class="text-sm text-slate-400 transition hover:text-cyan-300">About</a>
+        <a href="/#history"    class="text-sm text-slate-400 transition hover:text-cyan-300">History</a>
+        <a href="/#abox"       class="text-sm text-slate-400 transition hover:text-cyan-300">A-BOX</a>
+        <a href="/#roadmap"    class="text-sm text-slate-400 transition hover:text-cyan-300">Coming Soon</a>
+        <a href="/#projects"   class="text-sm text-slate-400 transition hover:text-cyan-300">Projects</a>
+        <a href="/#tak"        class="text-sm text-slate-400 transition hover:text-cyan-300">TAK Server UI</a>
+        <a href="/fleet/"     class="text-sm text-slate-400 transition hover:text-cyan-300">Fleet</a>
+        <a href="/#leadership" class="text-sm text-slate-400 transition hover:text-cyan-300">Leadership</a>
+        <a href="/#contact"    class="text-sm text-slate-400 transition hover:text-cyan-300">Contact</a>
+      </nav>
+    </div>
+
+    <div class="mt-12 flex flex-col items-center justify-between gap-4 border-t border-white/5 pt-7 sm:flex-row">
+      <p class="font-mono text-[11px] uppercase tracking-wider text-muted">© <span id="year">2026</span> Howidely. All rights reserved.</p>
+      <p class="font-mono text-[11px] uppercase tracking-wider text-muted">Engineered for the mission.</p>
+    </div>
+  </div>
+</footer>
+
+<!-- ============================================================= SCRIPTS -->
+<!--BUILD:APPJS-->
+</body>
+</html>
